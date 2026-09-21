@@ -1,0 +1,29 @@
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bg: #ffffff;
+  --surface: #f9fafb;
+  --surface-deep: #f3f4f6;
+  --stroke: rgba(17, 24, 39, 0.10);
+  --line: rgba(17, 24, 39, 0.12);
+  --text: #111827;
+  --muted: #4b5563;
+  --chip: #6b7280;
+  --primary: #007aff;
+  --primary-hover: #0066d6;
+  --primary-soft: rgba(0, 122, 255, 0.10);
+  --ok: #16a34a;
+  --ok-soft: rgba(22, 163, 74, 0.10);
+  --fail: #dc2626;
+  --fail-soft: rgba(220, 38, 38, 0.08);
+  --neutral-soft: rgba(17, 24, 39, 0.04);
+  --warn: #f59e0b;
+  --radius-card: 12px;
+  --radius-input: 8px;
+  --radius-pill: 999px;
+  --cut-corner: 18px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --space: 4px;
+  font-family: var(--font-sans); color: var(--text); background: var(--bg); color-scheme: light;
+  font-synthesis: none;
+}

@@ -1,0 +1,94 @@
+import { Forma } from "./forma";
+import { setbackBand, triangulate } from "./geometry";
+import type { Ring } from "./geometry";
+import type { Report, SiteData, Status } from "./metrics";
+import { buildingPolygons, edgeLimit } from "./metrics";
+import { heightLimit } from "./rules";
+import type { ParcelControls } from "./rules";
+
+const colors: Record<Status, number[]> = { pass: [17, 147, 0], fail: [255, 69, 26], insufficient: [107, 107, 136] };
+let generation = 0;
+let pending: Promise<unknown> = Promise.resolve();
+
+/** Small local mesh coordinates preserve precision; translation uses Forma's metric frame. */
+async function prism(ring: Ring, bottom: number, top: number, rgb: number[], alpha = 115): Promise<void> {
+  const ox = ring[0][0], oy = ring[0][1], positions: number[] = [];
+  const vertex = (p: [number, number], z: number) => positions.push(p[0] - ox, p[1] - oy, z - bottom);
+  for (const triangle of triangulate(ring)) {
+    triangle.forEach(p => vertex(p, top));
+    [...triangle].reverse().forEach(p => vertex(p, bottom));
+  }
+  if (top > bottom) ring.forEach((a, i) => {
+    const b = ring[(i + 1) % ring.length];
+    // Double-sided walls, independent of footprint winding.
+    for (const tri of [[a, b, b], [a, b, a]]) {
+      const zs = tri[2] === a ? [bottom, top, top] : [bottom, bottom, top];
+      tri.forEach((p, j) => vertex(p, zs[j]));
+      [...tri].reverse().forEach((p, j) => vertex(p, zs[2 - j]));
+    }
+  });
+  const color = new Uint8Array(positions.length / 3 * 4);
+  for (let i = 0; i < color.length; i += 4) color.set([...rgb, alpha], i);
+  await Forma.render.addMesh({ geometryData: { position: new Float32Array(positions), color }, transform: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ox, oy, bottom, 1] });
+}
+export function clearOverlays(): Promise<void> {
+  generation++;
+  const job = pending.catch(() => {}).then(() => Forma.render.cleanup());
+  pending = job;
+  return job;
+}
+export function renderOverlays(data: SiteData, controls: ParcelControls, report: Report): Promise<string[]> {
+  const token = ++generation;
+  const job = pending.catch(() => {}).then(async () => {
+    await Forma.render.cleanup();
+    const warnings: string[] = [];
+    if (token !== generation) return warnings;
+    try {
+      for (const { building, status } of report.buildings) {
+        if (token !== generation) return warnings;
+        if (!buildingPolygons(building).length) continue;
+        if (building.baseZ === null) { warnings.push(`${building.name}: overlay omitted; base elevation unavailable.`); continue; }
+        const top = building.baseZ + (building.height ?? 0.5);
+        const limit = heightLimit(controls);
+        for (const polygon of buildingPolygons(building)) {
+          if (token !== generation) return warnings;
+          if (polygon.length > 1) { warnings.push(`${building.name}: courtyard overlay omitted; numeric checks retain holes.`); continue; }
+          await prism(polygon[0], building.baseZ, top, colors[status]);
+          if (token !== generation) return warnings;
+          if (limit !== undefined && building.height !== null && building.height > limit) await prism(polygon[0], building.baseZ + limit, top, [255, 69, 26], 150);
+        }
+      }
+      if (!controls.includeExisting) for (const building of data.buildings.filter(b => b.kind === "existing")) {
+        if (token !== generation) return warnings;
+        if (building.baseZ === null) { warnings.push(`${building.name}: excluded context tint omitted; base elevation unavailable.`); continue; }
+        for (const polygon of buildingPolygons(building)) {
+          if (token !== generation) return warnings;
+          if (polygon.length > 1) { warnings.push(`${building.name}: courtyard context tint omitted; numeric checks retain holes.`); continue; }
+          await prism(polygon[0], building.baseZ, building.baseZ + (building.height ?? 0.5), [107, 114, 128], 38);
+        }
+      }
+      const counted = report.buildings.map(b => b.building);
+      const bases = counted.flatMap(b => b.baseZ === null ? [] : [b.baseZ]);
+      if (data.plot && bases.length) {
+        const z = Math.min(...bases) + 0.05;
+        for (let edge = 0; edge < data.plot.length; edge++) {
+          if (token !== generation) return warnings;
+          const widths = counted.flatMap(b => { const n = edgeLimit(controls, edge, b); return n === undefined ? [] : [n]; });
+          if (!widths.length) continue;
+          const width = Math.max(...widths);
+          for (const polygon of setbackBand(data.plot, edge, width)) {
+            if (polygon.length !== 1) throw new Error("Setback band with holes cannot be rendered by simple-ring triangulation");
+            await prism(polygon[0], z, z, controls.roadEdges.includes(edge) ? [0, 38, 255] : [107, 107, 136], 60);
+          }
+        }
+      }
+      return warnings;
+    } catch (error) {
+      // Do not leave a partial, potentially misleading set after a render rejection.
+      await Forma.render.cleanup();
+      throw error;
+    }
+  });
+  pending = job;
+  return job;
+}
