@@ -1,4 +1,4 @@
-import { asCustom, numericFields, presets, usePreset } from "../rules";
+import { asCustom, numericFields, presets, presetGroups, presetLabel, presetShortName, usePreset } from "../rules";
 import type { NumericField, ParcelControls } from "../rules";
 import type { Ring } from "../geometry";
 
@@ -28,7 +28,7 @@ export function sourceLink(controls: ParcelControls): string {
   try {
     const url = new URL(controls.sourceUrl ?? "");
     if (url.protocol !== "https:") return "";
-    return `<a class="pill source" href="${escapeHtml(url.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(controls.sourceLabel ?? "Source")} ↗</a>`;
+    return `<a class="pill source" href="${escapeHtml(url.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml((controls.sourceLabel ?? "Source").replace(/\b(Dubai|Riyadh)\b/g, "").replace(/^\s*·\s*|\s*·\s*$/g, "").trim())} ↗</a>`;
   } catch { return ""; }
 }
 const fields: { key: NumericField; label: string; step: string }[] = [
@@ -38,25 +38,19 @@ const fields: { key: NumericField; label: string; step: string }[] = [
   { key: "riyadhFrontStreetWidthM", label: "Street width · m", step: "0.01" },
 ];
 export function renderControls(container: HTMLElement, c: ParcelControls, plot: Ring | null): void {
-  // The app shell stays in app.ts; apply the requested typography here.
-  const header = container.ownerDocument.querySelector("header");
-  if (header) {
-    header.querySelector("h1")!.textContent = "Zoning Check";
-    header.querySelector(".eyebrow")!.textContent = "FORMA · MASSING CHECK";
-  }
-  container.innerHTML = `<div class="section-top"><h2>Parcel controls</h2><span class="eyebrow">01</span></div>
-    <div class="pill-row" aria-label="Jurisdiction">${(["dubai", "riyadh"] as const).map(j => `<button type="button" class="pill ${j === c.jurisdiction ? "selected" : ""}" data-jurisdiction="${j}" aria-pressed="${j === c.jurisdiction}">${j === "dubai" ? "Dubai" : "Riyadh"}</button>`).join("")}</div>
-    <label class="preset-label">Start from a preset<select id="preset" name="presetId">${presets.filter(p => p.controls.jurisdiction === c.jurisdiction || p.id === "custom").map(p => `<option value="${p.id}" ${p.id === c.presetId ? "selected" : ""}>${escapeHtml(p.label)}</option>`).join("")}</select></label>
-    <p class="caveat">${escapeHtml(c.caveat ?? "Enter controls from the current plot document.")}</p>
+  container.innerHTML = `<div class="preset-heading"><label for="preset">Preset</label><span class="rules-caption">Rules: ${c.jurisdiction === "dubai" ? "Dubai DBC" : "Riyadh MOMAH"}</span></div>
+    <label class="preset-label"><select id="preset" name="presetId">${presetGroups.map(group => `<optgroup label="${group.label}">${group.ids.map(id => { const p = presets.find(p => p.id === id)!; return `<option value="${p.id}" ${p.id === c.presetId ? "selected" : ""}>${escapeHtml(p.id === c.presetId ? presetLabel(c) : p.label)}</option>`; }).join("")}</optgroup>`).join("")}</select></label>
+    <div class="preset-actions"><button class="text-button" type="button" data-preset-action="load">Load preset…</button><button class="text-button" type="button" data-preset-action="save">Save preset</button></div>
+    <p class="caveat" tabindex="0" title="${escapeHtml(c.caveat ?? "Enter controls from the current plot document.")}">${escapeHtml(c.caveat ?? "Enter controls from the current plot document.")}</p>
     <form id="parcel-form" class="field-grid">${fields.filter(f => c.jurisdiction === "riyadh" ? f.key !== "setbackRoadM" : f.key !== "riyadhFrontStreetWidthM").map(f => `<label>${f.label}<input id="${f.key}" name="${f.key}" type="text" inputmode="decimal" min="0" ${f.key === "maxCoveragePct" ? 'max="100"' : ""} step="${f.step}" placeholder="${f.key === "setbackNeighbourM" && c.riyadhApartmentRule ? "Auto: 2 / 3" : "Not set"}" value="${c[f.key] === undefined ? "" : formatNumber(c[f.key]!, undefined, false)}" ${f.key === "riyadhFrontStreetWidthM" ? 'aria-describedby="street-note"' : ""}></label>`).join("")}
     ${c.jurisdiction === "dubai" ? `<label class="check-label"><input id="dubaiHeightRule" type="checkbox" ${c.dubaiHeightRule ? "checked" : ""}> DBC height ≤ 6 × floors</label>` : ""}<label class="check-label"><input id="includeExisting" role="switch" type="checkbox" ${c.includeExisting ? "checked" : ""}> Count existing buildings on plot</label></form>
-    ${c.jurisdiction === "riyadh" ? '<p id="street-note" class="small">Select the front road edge first. Other roads are side/rear. One width applies to all road edges. Neighbour auto-rule remains until you enter a value.</p>' : ""}
+    ${c.jurisdiction === "riyadh" ? '<p id="street-note" class="small">Select the front road first; one street width applies to all roads.</p>' : ""}
     <details class="edge-classifier"><summary>Plot edges <span class="muted">${formatNumber(plot?.length ?? 0, 0)} edges · classify roads</span></summary>
-    <p class="small">E1 starts at the first site-limit vertex. Coordinates are local metres.</p>
+    <p class="small">E1 starts at the first site-limit vertex (local metres).</p>
     <div class="edges">${plot ? plot.map((a, i) => { const b = plot[(i + 1) % plot.length]; const road = c.roadEdges.includes(i); return `<div class="edge"><span title="(${formatNumber(a[0], 2)}, ${formatNumber(a[1], 2)}) → (${formatNumber(b[0], 2)}, ${formatNumber(b[1], 2)})">E${i + 1} <span class="muted">${formatNumber(Math.hypot(b[0] - a[0], b[1] - a[1]), 1)} m</span></span><button type="button" data-edge="${i}" class="pill edge-toggle ${road ? "selected" : ""}" aria-pressed="${road}" aria-label="E${i + 1}: ${road ? "road" : "neighbour"}; toggle classification">${road ? c.jurisdiction === "riyadh" && c.roadEdges[0] === i ? "Road · front" : "Road" : "Neighbour"}</button></div>`; }).join("") : '<p class="small">Draw a site limit to classify its edges.</p>'}</div></details>`;
   styleNumbers(container.ownerDocument.querySelector("main")!);
 }
-export function wireControls(container: HTMLElement, current: () => ParcelControls, changed: (c: ParcelControls) => void): void {
+export function wireControls(container: HTMLElement, current: () => ParcelControls, changed: (c: ParcelControls, presetSelected?: boolean) => void): void {
   container.addEventListener("input", e => {
     const input = e.target as HTMLInputElement;
     if (input.inputMode === "decimal") {
@@ -69,7 +63,6 @@ export function wireControls(container: HTMLElement, current: () => ParcelContro
     const button = (e.target as HTMLElement).closest<HTMLButtonElement>("button");
     if (!button) return;
     const c = current();
-    if (button.dataset.jurisdiction) changed(usePreset(button.dataset.jurisdiction === "dubai" ? "dubai-master" : "riyadh-special"));
     if (button.dataset.edge !== undefined) {
       const edge = Number(button.dataset.edge);
       changed({ ...asCustom(c), roadEdges: c.roadEdges.includes(edge) ? c.roadEdges.filter(n => n !== edge) : [...c.roadEdges, edge] });
@@ -78,7 +71,7 @@ export function wireControls(container: HTMLElement, current: () => ParcelContro
   container.addEventListener("change", e => {
     const input = e.target as HTMLInputElement;
     const c = current();
-    if (input.name === "presetId") { changed(usePreset(input.value, c.jurisdiction)); return; }
+    if (input.name === "presetId") { changed(usePreset(input.value, c.jurisdiction), true); return; }
     if (input.id === "includeExisting") { changed({ ...c, includeExisting: input.checked }); return; }
     if (input.id === "dubaiHeightRule") { changed({ ...asCustom(c), dubaiHeightRule: input.checked }); return; }
     if (!numericFields.includes(input.name as NumericField)) return;
@@ -98,4 +91,10 @@ export function wireControls(container: HTMLElement, current: () => ParcelContro
     if (input.name === "setbackNeighbourM") next.riyadhApartmentRule = false;
     changed(next);
   });
+}
+
+export function controlsSummary(c: ParcelControls): string {
+  return [presetShortName(c), c.maxFar === undefined ? "" : `FAR ${formatNumber(c.maxFar)}`,
+    c.maxFloors === undefined ? "" : `G+${Math.max(0, c.maxFloors - 1)}`,
+    c.setbackNeighbourM === undefined && c.setbackRoadM === undefined ? "" : `${c.setbackNeighbourM ?? "—"}/${c.setbackRoadM ?? "—"} m`].filter(Boolean).join(" · ");
 }

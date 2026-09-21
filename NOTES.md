@@ -243,3 +243,102 @@ Fixture adds a synthetic `basicbuilding` with three graph levels of 3, 4 and 2.5
 - Remaining: owner must refresh the live Forma proposal and inspect/download the debug JSON to establish actual representation availability, coordinate placement and counts for the two native buildings. Hole-containing 3D extrusions remain omitted as described above. No live host verification is claimed.
 
 Only `src/forma.ts`, `src/metrics.ts`, `src/render.ts`, `src/main.ts`, `src/fixture.ts` and `NOTES.md` are changed. No commits.
+
+## v2.3 — preset files and results-first panels (2026-09-21)
+
+### Interface and preset contract
+
+The full panel presents proposal context, an always-visible action/status sentence, results and Buildings, collapsible Parcel controls, then source attribution and disclaimer.
+Refresh is an icon button; Export CSV, Save preset, Load preset and Debug are in the overflow menu.
+The mini panel uses the same status sentence and has no city prefix or repeated timestamp in its footer.
+Ready status totals include floors and exclude parking; incomplete checks remain explicit.
+
+Jurisdiction comes from the selected or imported preset, with a muted Rules caption and source-grouped options.
+Custom retains the current jurisdiction; direct field edits retain source attribution.
+The caveat occupies one visual line with full text available in its title and accessible text.
+Street width is visible only for Riyadh rules, and the DBC height checkbox only for Dubai rules.
+The source link keeps the original URL and stored attribution; redundant city words are omitted from its visible caption.
+
+A selected built-in preset collapses controls after successful proposal persistence; previously stored controls start collapsed.
+Manual opening survives Refresh and subsequent field edits.
+Initial restoration does not animate; explicit disclosure uses 180 ms with `var(--ease)` and 0.01 ms under reduced motion.
+No signature effect or animation dependency is added.
+
+`validControls` is shared by local storage and file validation.
+The versioned envelope, optional display label, numeric guards and source precedence are documented in [docs/preset-schema.md](docs/preset-schema.md).
+Import clears road indices, which have no identity across plots, and displays an instruction to classify roads on the target plot.
+An invalid file leaves current controls intact and displays one error sentence.
+The built-in JSON files and README preset table are generated directly from `rules.ts` with throwaway Node commands; no build dependency or permanent generator is added.
+CSV includes the imported preset label and product version v2.3.
+
+### Host surfaces and evidence boundaries
+
+Embedded mode sets `data-host="forma"`; standalone mode sets `data-host="standalone"`.
+The body and app root are transparent in host mode, with 12 px root padding and no outer border or radius.
+Cards retain the opaque `--surface` background, including cards whose limits are absent.
+The standalone `?fixture=1&host=forma` test draws a dark checkerboard behind the transparent content without initiating an SDK connection.
+The checkerboard is a transparency diagnostic, not a dark theme.
+
+The existing `live-forma-floating.png` and `live-forma-mini.png` were present as untracked files at task start and were not modified.
+They are owner-supplied screenshots of the previous interface, now identified as such in README.
+The floating image shows two proposal buildings, 49 excluded existing buildings, both panel placements and visible tint; it does not establish measurement accuracy or overlay alignment.
+The earlier mini image records the native-geometry failure.
+The available browser connection contains only a blank tab; there is no authenticated Forma session for a fresh live verification.
+
+### Verification output
+
+```text
+$ npm run typecheck && npm run build
+
+> forma-zoning-check@2.0.0 typecheck
+> tsc --noEmit
+
+> forma-zoning-check@2.0.0 build
+> tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 64 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/icon-BLqHIg4b.svg    0.36 kB │ gzip:  0.22 kB
+dist/index.html                  0.85 kB │ gzip:  0.44 kB
+dist/assets/index-B0qK_sGd.css  12.18 kB │ gzip:  3.37 kB
+dist/assets/render-C9eqwkp_.js   2.50 kB │ gzip:  1.18 kB
+dist/assets/forma-C4RcREvR.js   11.23 kB │ gzip:  4.35 kB
+dist/assets/auto-DEyLCGOg.js    44.31 kB │ gzip: 13.80 kB
+dist/assets/index-B9FnyI1p.js   79.78 kB │ gzip: 26.59 kB
+✓ built in 225ms
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'http://localhost:5173/?fixture=1'
+200
+
+$ node --input-type=module  # throwaway rules/file assertions, stdin
+99 assertions passed: 9 preset files identical to rules.ts; validation, import/export round trips, provenance, road reset and storage guards.
+
+$ node /tmp/zc-v23-browser.mjs  # throwaway, removed after verification
+68 browser assertions passed; refresh CLS 0; screenshots regenerated.
+
+$ node --input-type=module  # targeted CSV and mini-host assertions, stdin
+4 targeted assertions passed: imported preset label and v2.3 in CSV; mini host transparency and status.
+```
+
+Exact Node zlib gzip totals are JS **45,927 bytes**, CSS **3,366 bytes**, combined **49,293 bytes**.
+Compared with the previous recorded 47,653-byte build, the combined increase is **1,640 bytes** (JS +1,435; CSS +205).
+No runtime dependencies are added; animation dependency increase is **0 bytes**.
+The package version remains 2.0.0 because `package.json` is outside the allowed edit list.
+
+Browser checks use local Chrome through cached Playwright, without a project dependency installation.
+They cover all five app states at 440 and 240 px, no horizontal overflow, preset groups, conditional fields, Custom jurisdiction retention, saved collapse state, both Load/Save entry points, file validation, escaped file content, unsafe source-link rejection, CSV, Include existing in both views, keyboard focus and Escape.
+All presets have no visible city words outside the preset selector and Rules caption.
+Computed host body/root backgrounds are `rgba(0, 0, 0, 0)`; root border/radius are `0px`, padding is `12px`, and all result-card surfaces are `rgb(249, 250, 251)`.
+The controls transition computes to `0.18s` normally and `0.00001s` under reduced motion.
+Refresh preserves the controls' document position, with observed CLS **0**; cold-network font-swap CLS is not measured.
+`git diff --check` passes.
+
+Regenerated and visually reviewed: `ready-440.png`, `mini-ready-240.png`, `no-site-limit-440.png`, `controls-collapsed-440.png`, `overflow-menu-440.png`.
+The existing server on port 5173 was reused without a restart.
+Changes remain uncommitted on `main`, within the permitted files.
+
+Remaining live checks: v2.3 transparency and interactions in both Forma panel placements, live Debug/download behaviour, and previously unverified geometry accuracy and overlay alignment/cleanup.
+The README installation form and Buttons configuration are documented but were not re-entered into a live extension registration in this task.

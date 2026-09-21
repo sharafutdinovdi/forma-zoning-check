@@ -1,0 +1,21 @@
+{
+  "schema": "forma-zoning-check/preset@1",
+  "label": "Riyadh · MOMAH 2024 villa (R3)",
+  "controls": {
+    "jurisdiction": "riyadh",
+    "presetId": "riyadh-villa",
+    "roadEdges": [],
+    "includeExisting": false,
+    "maxFloors": 2,
+    "maxCoveragePct": 75,
+    "setbackNeighbourM": 1.5,
+    "sourceLabel": "MOMAH 2024 · §§3.1, 4.1 (Arabic)",
+    "sourceUrl": "https://momah.gov.sa/sites/default/files/2025-11/ashtratat%20ansha%20almbany%20alsknyt9%20ywlyh%202024.pdf",
+    "caveat": "2 floors + roof annex; annex and basement classification not checked. Enter street width and classify road edges; plot system prevails."
+  },
+  "source": {
+    "label": "MOMAH 2024 · §§3.1, 4.1 (Arabic)",
+    "url": "https://momah.gov.sa/sites/default/files/2025-11/ashtratat%20ansha%20almbany%20alsknyt9%20ywlyh%202024.pdf"
+  },
+  "notes": "2 floors + roof annex; annex and basement classification not checked. Enter street width and classify road edges; plot system prevails."
+}

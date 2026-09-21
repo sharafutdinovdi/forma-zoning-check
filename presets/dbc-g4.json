@@ -1,0 +1,22 @@
+{
+  "schema": "forma-zoning-check/preset@1",
+  "label": "Dubai · DBC fallback G+4",
+  "controls": {
+    "jurisdiction": "dubai",
+    "presetId": "dbc-g4",
+    "roadEdges": [],
+    "includeExisting": false,
+    "maxFloors": 5,
+    "dubaiHeightRule": true,
+    "setbackNeighbourM": 3.75,
+    "setbackRoadM": 0,
+    "sourceLabel": "DBC 2021 · B.4.2",
+    "sourceUrl": "https://dmpmedia.dm.gov.ae/uploads/2021/12/Dubai%20Building%20Code_English_2021%20Edition_compressed.pdf",
+    "caveat": "fallback only; plot DCR/affection plan prevails"
+  },
+  "source": {
+    "label": "DBC 2021 · B.4.2",
+    "url": "https://dmpmedia.dm.gov.ae/uploads/2021/12/Dubai%20Building%20Code_English_2021%20Edition_compressed.pdf"
+  },
+  "notes": "fallback only; plot DCR/affection plan prevails"
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zoning Check — iframe regression harness</title>
+    <link rel="icon" href="../assets/icon.svg" type="image/svg+xml" />
+    <style>
+      body { font: 14px system-ui, sans-serif; margin: 24px; background: #eee; color: #111; }
+      .panels { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+      iframe { display: block; border: 0; background: white; }
+      pre { white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>Zoning Check iframe regression harness</h1>
+    <p>Serve from the app's dev server, then open /docs/embed-test.html.</p>
+    <pre id="result" role="status">Waiting for both panels…</pre>
+    <div class="panels">
+      <section>
+        <h2>Mini — 240 px</h2>
+        <iframe id="mini" title="Mini panel at 240 px" width="240" height="720" src="../?fixture=1&amp;embedded=1"></iframe>
+      </section>
+      <section>
+        <h2>Floating — 440 px</h2>
+        <iframe id="full" title="Floating panel at 440 px" width="440" height="720" src="../?fixture=1&amp;embedded=1"></iframe>
+      </section>
+    </div>
+    <script type="module">
+      const result = document.querySelector("#result");
+      const deadline = performance.now() + 10000;
+      function check() {
+        const lines = [];
+        for (const frame of document.querySelectorAll("iframe")) {
+          const doc = frame.contentDocument;
+          const root = doc?.querySelector("main");
+          const status = doc?.querySelector(frame.id === "mini" ? ".mini-status" : "#state-message");
+          if (root?.dataset.state !== "ready" || !status?.textContent.trim() || !status.getBoundingClientRect().height) {
+            if (performance.now() < deadline) { requestAnimationFrame(check); return; }
+            result.dataset.result = "fail";
+            result.textContent = `FAIL ${frame.width}px: ${status?.textContent || "no visible ready status line"}`;
+            return;
+          }
+          lines.push(`PASS ${frame.width}px: ${status.textContent}`);
+        }
+        result.dataset.result = "pass";
+        result.textContent = lines.join("\n");
+      }
+      check();
+    </script>
+  </body>
+</html>

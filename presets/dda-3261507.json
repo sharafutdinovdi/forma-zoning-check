@@ -1,0 +1,23 @@
+{
+  "schema": "forma-zoning-check/preset@1",
+  "label": "Dubai · DDA plot 3261507 (Al Jadaf) example",
+  "controls": {
+    "jurisdiction": "dubai",
+    "presetId": "dda-3261507",
+    "roadEdges": [],
+    "includeExisting": false,
+    "maxFar": 6.972,
+    "maxFloors": 21,
+    "maxHeightM": 85,
+    "setbackNeighbourM": 4,
+    "setbackRoadM": 7.5,
+    "sourceLabel": "DDA · plot 3261507",
+    "sourceUrl": "https://gis.dda.gov.ae/DIS?PlotNumber=3261507&handler=PlotInfo",
+    "caveat": "Example only: 4 / 7.5 / 4 / 4 m approximated as neighbour 4 m, road 7.5 m; podium controls excluded."
+  },
+  "source": {
+    "label": "DDA · plot 3261507",
+    "url": "https://gis.dda.gov.ae/DIS?PlotNumber=3261507&handler=PlotInfo"
+  },
+  "notes": "Example only: 4 / 7.5 / 4 / 4 m approximated as neighbour 4 m, road 7.5 m; podium controls excluded."
+}

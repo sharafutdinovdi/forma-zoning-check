@@ -1,0 +1,18 @@
+{
+  "schema": "forma-zoning-check/preset@1",
+  "label": "Riyadh · KAFD / Qiddiya parcel",
+  "controls": {
+    "jurisdiction": "riyadh",
+    "presetId": "riyadh-special",
+    "roadEdges": [],
+    "includeExisting": false,
+    "sourceLabel": "Riyadh · plot building-system service",
+    "sourceUrl": "https://www.alriyadh.gov.sa/ar/services/40?mainServiceCode=2",
+    "caveat": "controls not public; enter from plot document; special-authority parcel controls prevail"
+  },
+  "source": {
+    "label": "Riyadh · plot building-system service",
+    "url": "https://www.alriyadh.gov.sa/ar/services/40?mainServiceCode=2"
+  },
+  "notes": "controls not public; enter from plot document; special-authority parcel controls prevail"
+}

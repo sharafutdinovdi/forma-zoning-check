@@ -1,0 +1,18 @@
+{
+  "schema": "forma-zoning-check/preset@1",
+  "label": "Dubai · master-developer plot (Downtown / Emaar)",
+  "controls": {
+    "jurisdiction": "dubai",
+    "presetId": "dubai-master",
+    "roadEdges": [],
+    "includeExisting": false,
+    "sourceLabel": "Emaar · Downtown Dubai",
+    "sourceUrl": "https://www.emaar.com/en/our-communities/downtown-dubai",
+    "caveat": "controls not public; enter from plot document"
+  },
+  "source": {
+    "label": "Emaar · Downtown Dubai",
+    "url": "https://www.emaar.com/en/our-communities/downtown-dubai"
+  },
+  "notes": "controls not public; enter from plot document"
+}

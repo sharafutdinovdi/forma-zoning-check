@@ -1,0 +1,21 @@
+{
+  "schema": "forma-zoning-check/preset@1",
+  "label": "Riyadh · MOMAH 2024 apartment (R2)",
+  "controls": {
+    "jurisdiction": "riyadh",
+    "presetId": "riyadh-apartment",
+    "roadEdges": [],
+    "includeExisting": false,
+    "maxHeightM": 23,
+    "maxCoveragePct": 65,
+    "riyadhApartmentRule": true,
+    "sourceLabel": "MOMAH 2024 · §§3.2, 4.2 (Arabic)",
+    "sourceUrl": "https://momah.gov.sa/sites/default/files/2025-11/ashtratat%20ansha%20almbany%20alsknyt9%20ywlyh%202024.pdf",
+    "caveat": "Ground coverage only; neighbour 2 m for ≤5 floors, 3 m for >5. Roof annex excluded; enter street width. Above 23 m is outside this preset’s scope."
+  },
+  "source": {
+    "label": "MOMAH 2024 · §§3.2, 4.2 (Arabic)",
+    "url": "https://momah.gov.sa/sites/default/files/2025-11/ashtratat%20ansha%20almbany%20alsknyt9%20ywlyh%202024.pdf"
+  },
+  "notes": "Ground coverage only; neighbour 2 m for ≤5 floors, 3 m for >5. Roof annex excluded; enter street width. Above 23 m is outside this preset’s scope."
+}

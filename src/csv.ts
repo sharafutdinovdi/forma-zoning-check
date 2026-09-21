@@ -1,7 +1,7 @@
 import type { Building, SiteData, Report } from "./metrics";
 import { buildingFootprintArea, buildingGfa, buildingPolygons } from "./metrics";
 import type { ParcelControls } from "./rules";
-import { numericFields, heightLimit } from "./rules";
+import { numericFields, heightLimit, presetLabel } from "./rules";
 import { intersection, multiArea } from "./geometry";
 import type { Ring } from "./geometry";
 import { formatNumber } from "./ui/controls";
@@ -31,13 +31,14 @@ export function serializeCsv(data: SiteData, controls: ParcelControls, report: R
   }
   for (const e of report.edges) rows.push(["Buildings", `E${e.edge + 1} · ${data.buildings.find(b => b.path === e.building)?.name ?? e.building}`, numeric(e.value), numeric(e.limit), "m", e.status, numeric(e.margin), "true", "Minimum footprint-to-segment distance; 0.05 m tolerance", outside.get(e.building) ?? ""]);
   row("Controls", "Jurisdiction", controls.jurisdiction); row("Controls", "Preset", controls.presetId);
+  row("Controls", "Preset label", presetLabel(controls));
   row("Controls", "Source", controls.sourceLabel ?? "User-entered controls"); row("Controls", "Source URL", controls.sourceUrl ?? ""); row("Controls", "Caveat", controls.caveat ?? "");
   for (const key of numericFields) row("Controls", key, numeric(controls[key]));
   row("Controls", "Effective height limit m", numeric(heightLimit(controls)));
   row("Controls", "Dubai height rule", String(!!controls.dubaiHeightRule)); row("Controls", "Riyadh apartment neighbour rule", String(!!controls.riyadhApartmentRule));
   row("Controls", "Road edges (first = Riyadh front)", controls.roadEdges.map(n => `E${n + 1}`).join(", "));
   row("Controls", "Counting mode", controls.includeExisting ? "Proposal and existing buildings on plot" : "Proposal buildings only");
-  row("Metadata", "Product", "Zoning Check v2.2"); row("Metadata", "Proposal id", data.proposalId); row("Metadata", "Proposal name", data.proposalName);
+  row("Metadata", "Product", "Zoning Check v2.3"); row("Metadata", "Proposal id", data.proposalId); row("Metadata", "Proposal name", data.proposalName);
   row("Metadata", "Exported UTC", new Date().toISOString()); row("Metadata", "Disclaimer", "Estimated massing check — not a compliance statement");
   row("Metadata", "Warnings", data.warnings.join("; "));
   row("Metadata", "Plot coordinates (local metres)", JSON.stringify(data.plot));

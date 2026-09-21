@@ -1,0 +1,16 @@
+{
+  "schema": "forma-zoning-check/preset@1",
+  "label": "Custom",
+  "controls": {
+    "jurisdiction": "dubai",
+    "presetId": "custom",
+    "roadEdges": [],
+    "includeExisting": false,
+    "caveat": "Enter controls from the current plot document."
+  },
+  "source": {
+    "label": "",
+    "url": ""
+  },
+  "notes": "Enter controls from the current plot document."
+}
