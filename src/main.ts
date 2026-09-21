@@ -30,6 +30,7 @@ let request = 0, overlayRevision = 0, computedAt = 0;
 let activeProposal = "", activeRoot: string | undefined;
 let message = "", notices: string[] = [], storageWarning = "";
 let disposed = false, openSupported = true;
+let lifecycle = 0;
 let stopWatching = () => {};
 const root = document.querySelector("main")!;
 createApp(root, fixture, debug());
@@ -135,7 +136,7 @@ function persist(): void {
 async function clearLocalOverlays(): Promise<void> {
   if (isHost) { const { clearOverlays } = await import("./render"); await clearOverlays(); }
 }
-const sync = createSync((incoming: SyncMessage) => {
+function receiveSync(incoming: SyncMessage): void {
   if (disposed || incoming.proposalId !== activeProposal || incoming.results.data.rootUrn !== activeRoot || incoming.computedAt <= computedAt) return;
   request++; overlayRevision++;
   ({ state, data, report, message } = incoming.results);
@@ -143,7 +144,8 @@ const sync = createSync((incoming: SyncMessage) => {
   notices = data.warnings; persist(); sync.remember(incoming); draw();
   // The computing view owns meshes; avoid stacking translucent copies from peers.
   void clearLocalOverlays().catch(error => console.warn("Zoning Check: peer overlay cleanup", error));
-});
+}
+let sync = createSync(receiveSync);
 async function updateOverlays(): Promise<void> {
   if (!isHost || state !== "ready" || !data || !report || disposed) return;
   const revision = ++overlayRevision;
@@ -259,35 +261,48 @@ miniEl.addEventListener("click", event => {
   if (action === "refresh") void load(fixture ? "ready" : undefined);
   if (action === "open") void openFull();
 });
-const ageTimer = setInterval(() => document.querySelectorAll("[data-updated]").forEach(el => { el.textContent = relativeTime(computedAt); }), 10000);
+const updateAge = () => document.querySelectorAll("[data-updated]").forEach(el => { el.textContent = relativeTime(computedAt); });
+let ageTimer = setInterval(updateAge, 10000);
 window.addEventListener("pagehide", () => {
-  disposed = true; request++; overlayRevision++; stopWatching(); sync.close(); clearInterval(ageTimer);
+  disposed = true; lifecycle++; request++; overlayRevision++; stopWatching(); sync.close(); clearInterval(ageTimer);
   void clearLocalOverlays().catch(error => console.warn("Zoning Check: unload cleanup", error));
 });
-async function start(): Promise<void> {
+window.addEventListener("pageshow", event => {
+  if (!event.persisted || !disposed) return;
+  disposed = false;
+  sync = createSync(receiveSync);
+  ageTimer = setInterval(updateAge, 10000);
+  void start(true);
+});
+async function start(restored = false): Promise<void> {
+  const generation = lifecycle;
   draw();
   if (fixture) { const initial = fixtureData("ready", params.get("existing") === "1", existingOnly); activeProposal = initial.proposalId; activeRoot = initial.rootUrn; }
   else if (isHost) {
     try {
       const { Forma, siteFingerprint } = await import("./forma");
-      [activeProposal, activeRoot] = await Promise.all([Forma.proposal.getId(), Forma.proposal.getRootUrn()]);
+      const [proposal, rootUrn] = await Promise.all([Forma.proposal.getId(), Forma.proposal.getRootUrn()]);
+      if (disposed || generation !== lifecycle) return;
+      [activeProposal, activeRoot] = [proposal, rootUrn];
       const stop = await autoRefresh({
-        subscribe: changed => Forma.proposal.subscribe(({ rootUrn }) => { activeRoot = rootUrn; changed(rootUrn); }, { debouncedPersistedOnly: true }),
+        subscribe: changed => Forma.proposal.subscribe(({ rootUrn }) => { if (disposed || generation !== lifecycle) return; activeRoot = rootUrn; changed(rootUrn); }, { debouncedPersistedOnly: true }),
         fingerprint: siteFingerprint,
         changed: rootUrn => {
+          if (disposed || generation !== lifecycle) return;
           if (rootUrn && data?.rootUrn === rootUrn && state !== "error") return;
           void load();
         },
       });
-      if (disposed) { stop(); return; } stopWatching = stop;
+      if (disposed || generation !== lifecycle) { stop(); return; } stopWatching = stop;
     } catch (error) { console.warn("Zoning Check: automatic refresh unavailable", error); }
   }
-  if (disposed) return;
+  if (disposed || generation !== lifecycle) return;
+  if (restored) { await load(); return; }
   // Explicit fixture states remain deterministic for screenshots.
   if (!params.has("state") && !existingOnly) {
     sync.request(activeProposal, activeRoot);
     await new Promise(resolve => setTimeout(resolve, 180));
   }
-  if (!disposed && !computedAt) await load();
+  if (!disposed && generation === lifecycle && !computedAt) await load();
 }
 void start();

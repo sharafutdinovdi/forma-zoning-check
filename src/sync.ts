@@ -56,7 +56,24 @@ export async function autoRefresh(options: {
   let interval: ReturnType<typeof setInterval> | undefined;
   let stopped = false, busy = false, dirty = false;
   let last = "", root: string | undefined;
+  const timeoutError = new Error("SDK request timed out after 8 seconds");
+  const loggedTimeouts = new Set<string>();
+  async function withTimeout<T>(promise: Promise<T>, operation: string): Promise<T> {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+      return await Promise.race([promise, new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => {
+          if (!loggedTimeouts.has(operation)) {
+            loggedTimeouts.add(operation);
+            console.warn(`Zoning Check: ${operation} timed out after 8 seconds`);
+          }
+          reject(timeoutError);
+        }, 8000);
+      })]);
+    } finally { clearTimeout(timeout); }
+  }
   const schedule = (nextRoot?: string) => {
+    if (stopped) return;
     root = nextRoot; dirty = true; clearTimeout(timer);
     if (!document.hidden) timer = setTimeout(() => { timer = undefined; dirty = false; options.changed(root); }, 600);
   };
@@ -64,11 +81,11 @@ export async function autoRefresh(options: {
     if (document.hidden || busy || stopped) return;
     busy = true;
     try {
-      const fingerprint = await options.fingerprint();
+      const fingerprint = await withTimeout(options.fingerprint(), "change polling");
       if (stopped) return;
       if (last && last !== fingerprint) schedule();
       last = fingerprint;
-    } catch (error) { console.warn("Zoning Check: change polling unavailable", error); }
+    } catch (error) { if (error !== timeoutError) console.warn("Zoning Check: change polling unavailable", error); }
     finally { busy = false; }
   };
   const visible = () => {
@@ -77,11 +94,20 @@ export async function autoRefresh(options: {
     else if (interval) void poll();
   };
   let unsubscribe = () => {};
-  try { ({ unsubscribe } = await options.subscribe(schedule)); }
+  let acceptingSubscription = true;
+  try {
+    ({ unsubscribe } = await withTimeout(options.subscribe(nextRoot => {
+      if (acceptingSubscription) schedule(nextRoot);
+    }).then(subscription => {
+      if (!acceptingSubscription) subscription.unsubscribe();
+      return subscription;
+    }), "subscription"));
+  }
   catch (error) {
-    console.warn("Zoning Check: subscription unavailable; polling paths every 4 seconds", error);
-    await poll(); interval = setInterval(() => void poll(), 4000);
+    acceptingSubscription = false;
+    if (error !== timeoutError) console.warn("Zoning Check: subscription unavailable; polling paths every 4 seconds", error);
+    void poll(); interval = setInterval(() => void poll(), 4000);
   }
   document.addEventListener("visibilitychange", visible);
-  return () => { stopped = true; clearTimeout(timer); clearInterval(interval); unsubscribe(); document.removeEventListener("visibilitychange", visible); };
+  return () => { stopped = true; acceptingSubscription = false; clearTimeout(timer); clearInterval(interval); unsubscribe(); document.removeEventListener("visibilitychange", visible); };
 }
