@@ -1,0 +1,68 @@
+name: Bug report
+description: Report a reproducible problem with checks, presets or the Forma panel.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Extension version or commit
+    validations:
+      required: true
+  - type: input
+    id: region
+    attributes:
+      label: Forma region
+      description: State the Forma region, or local fixture if outside Forma.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser name and version
+    validations:
+      required: true
+  - type: input
+    id: sdk
+    attributes:
+      label: SDK version
+      description: Installed forma-embedded-view-sdk version.
+      placeholder: 0.96.0
+    validations:
+      required: true
+  - type: textarea
+    id: preset
+    attributes:
+      label: Preset in use
+      description: Include manually changed controls and relevant edge classifications.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the fixture URL when using synthetic data.
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Panel screenshot
+      description: Drag and drop or paste a screenshot of the panel. Remove private project identifiers and confidential geometry.
+    validations:
+      required: true

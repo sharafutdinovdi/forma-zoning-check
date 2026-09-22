@@ -1,6 +1,17 @@
+<p align="center">
+  <img src="docs/assets/logo.svg" alt="Zoning Check mark" width="96" height="96">
+</p>
+
 # Zoning Check
 
 An Autodesk Forma extension that checks a proposal against the parcel controls of its plot and generates the permitted envelope.
+
+[![CI](https://img.shields.io/github/actions/workflow/status/sharafutdinovdi/forma-zoning-check/ci.yml?style=flat-square)](https://github.com/sharafutdinovdi/forma-zoning-check/actions/workflows/ci.yml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/sharafutdinovdi/forma-zoning-check/codeql.yml?label=CodeQL&style=flat-square)](https://github.com/sharafutdinovdi/forma-zoning-check/actions/workflows/codeql.yml)
+[![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+![Autodesk Forma](https://img.shields.io/badge/Autodesk-Forma-0696d7?style=flat-square)
+![Node 20+](https://img.shields.io/badge/Node-20%2B-339933?style=flat-square)
+![forma-embedded-view-sdk 0.96](https://img.shields.io/badge/forma--embedded--view--sdk-0.96-0696d7?style=flat-square)
 
 <img src="docs/screens/hero.png" alt="Zoning Check open in Autodesk Forma: verdicts in the panel, status tint on the buildings, summary in the right menu" width="100%">
 

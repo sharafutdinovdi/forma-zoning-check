@@ -1,0 +1,42 @@
+name: Feature request
+description: Propose a change to zoning checks, presets or the Forma workflow.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: input
+    id: region
+    attributes:
+      label: Affected Forma region
+      description: State the region, or all regions if the request is general.
+    validations:
+      required: true
+  - type: input
+    id: preset
+    attributes:
+      label: Affected preset
+      description: State the preset name, proposed new preset, or not applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Include current workarounds and their limitations.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Primary source
+      description: For new presets, link the official regulation, adopted plan or plot document and cite its section or article. Remove confidential plot data.
