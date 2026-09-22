@@ -2,7 +2,7 @@
 
 An Autodesk Forma extension that checks a proposal against the parcel controls of its plot and generates the permitted envelope.
 
-<img src="docs/screens/live-results.png" alt="Results and remaining margins in live Forma, with 3D status tint and the mini panel" width="100%">
+<img src="docs/screens/hero.png" alt="Zoning Check open in Autodesk Forma: verdicts in the panel, status tint on the buildings, summary in the right menu" width="100%">
 
 ## What it does
 
@@ -17,13 +17,11 @@ An Autodesk Forma extension that checks a proposal against the parcel controls o
 2. Add or import proposal buildings; existing buildings are excluded unless **Count existing buildings on plot** is enabled.
 3. In **Controls**, pick a preset or enter the plot controls, classify the plot edges and supply street width where required.
 
-   ![Controls tab with a preset, Reference values badge and numeric fields](docs/screens/live-controls.png)
-
 4. Read the verdicts and 3D tint: green passes, red fails, grey needs data; inspect the generated volume in **Envelope**.
 
-   ![Envelope tab with buildable area, storeys, binding constraint and the generated volume in 3D](docs/screens/live-envelope.png)
-
 5. In **Envelope**, choose **Export report (CSV)** or **Save envelope to library** for later placement in Forma.
+
+![The three tabs of the panel: Results, Controls, Envelope](docs/screens/tabs.png)
 
 ## Presets
 
@@ -105,7 +103,7 @@ The envelope does not shrink its footprint to meet coverage; coverage warnings r
 ## Verified
 
 Owner-provided live captures from **2026-09-22** show v4 in Forma's EU region with SDK **0.96.0**.
-They cover the floating and mini panels, controls, verdicts, 3D tint, generated envelope and [CSV download](docs/screens/live-issues.png).
+This covered the floating and mini panels, controls, verdicts, the 3D tint, the generated envelope and the CSV download.
 Envelope saving to the library, bouwvlak mode and European presets on a European plot remain unverified.
 
 ## Licence
