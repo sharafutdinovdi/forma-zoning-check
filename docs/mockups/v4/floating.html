@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zoning Check — floating mockup</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://app.autodeskforma.eu/design-system/v2/forma/styles/base.css">
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/button/weave-button.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/tab/weave-tab.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/badge/weave-badge.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/input/weave-input.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/dropdown/weave-select.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/checkbox/weave-checkbox.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/tooltip/weave-tooltip.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/accordion/weave-accordion.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/segmented-buttons-group/weave-segmented-buttons-group.js"></script>
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/forma/components/alert/forma-alert.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fff; color: var(--text-color-medium-default); font: var(--12-regular); }
+    .panel { width: 100%; max-width: 440px; }
+    header { height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 16px; }
+    h1 { flex: 1; margin: 0; font: var(--12-bold); white-space: nowrap; }
+    svg { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .icon-button { width: 28px; height: 28px; color: var(--text-color-medium-default); }
+    .icon-button::part(button) { width: 28px; height: 28px; padding: 0; color: inherit; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .metrics { display: grid; gap: 8px; }
+    .metric { height: 36px; display: grid; grid-template-columns: 6px auto 1fr; column-gap: 8px; align-items: start; }
+    .dot { width: 6px; height: 6px; margin-top: 5px; border-radius: 50%; background: #6a9728; }
+    .fail .dot { background: #dd2222; }
+    .unknown .dot { background: rgba(60,60,60,.4); }
+    .value { text-align: right; font: var(--12-medium); font-variant-numeric: tabular-nums; }
+    .value-line { display: flex; align-items: center; justify-content: flex-end; gap: 4px; height: 16px; white-space: nowrap; }
+    .unit, .secondary { font: var(--11-regular); }
+    .secondary { display: block; margin-top: 4px; color: var(--text-color-light); }
+    a { color: var(--text-color-link-default); }
+    a:focus-visible { outline: 2px solid var(--border-color-accent-default); outline-offset: 2px; }
+
+    weave-tabs { display: block; width: auto; margin: 0 16px; }
+    weave-tab { width: auto; }
+    .tab-content { width: 100%; padding: 16px 0; vertical-align: top; }
+    .tab-content[aria-hidden="true"] { display: none; }
+    .scope { margin: 0 0 16px; color: var(--text-color-light); font: var(--11-regular); }
+    .info { display: inline-flex; width: 12px; height: 12px; vertical-align: middle; }
+    .info::part(button) { width: 12px; height: 12px; padding: 0; color: var(--text-color-light); }
+    .info svg { width: 12px; height: 12px; }
+    .value weave-tooltip { display: flex; }
+    .controls-link { font: inherit; }
+    .preset-row, .field-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; height: 36px; }
+    .field-row > span, .preset-row > span { font: var(--11-medium); }
+    .preset-row { height: auto; min-height: 36px; align-items: flex-start; padding: 6px 0; }
+    .preset-row > span { padding-top: 4px; }
+    .preset-field { display: flex; flex-direction: column; gap: 4px; width: 70%; min-width: 0; }
+    .preset-field weave-badge { align-self: flex-start; }
+    .preset-row weave-select { width: 100%; min-width: 0; font: var(--11-regular); }
+    .preset-row weave-select::part(weave-select-container) { width: 100%; height: 24px; font: var(--11-regular); }
+    .market { display: block; padding: 4px 8px; color: var(--text-color-light); font: var(--11-medium); }
+    .field-row weave-input { display: block; width: 50%; min-width: 0; }
+    .checkbox-row { display: flex; align-items: center; min-height: 36px; }
+    weave-checkbox { font: var(--12-regular); }
+    .edges { position: relative; margin-top: 16px; }
+    weave-accordion { display: block; width: 100%; }
+    weave-accordion::part(trigger) { height: 36px; background: transparent; padding: 0 8px; font: var(--12-regular); }
+    weave-accordion::part(trigger):focus-visible { outline: 2px solid var(--border-color-accent-default); outline-offset: 2px; }
+    weave-accordion:not([expanded])::part(content) { padding: 0; }
+    .edge-count { position: absolute; right: 24px; top: 8px; pointer-events: none; font: var(--11-regular); color: var(--text-color-light); }
+    .edge-row { height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 8px; font: var(--11-regular); }
+    .actions { display: grid; gap: 4px; margin-top: 16px; }
+    .actions weave-button { width: 100%; }
+    .envelope-metrics { margin-top: 16px; }
+    .envelope-metrics .metric { grid-template-columns: auto 1fr; align-items: center; }
+    .envelope-metrics .value { justify-self: end; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<main class="panel">
+<header><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M2 14V6h5v8M7 14V2h7v12M1 14h14M4 8h1m-1 3h1m4-6h3M9 8h3m-3 3h3"/></svg><h1>Zoning Check</h1><weave-button class="icon-button" variant="flat"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M13 3v4H9M13 7a5 5 0 1 0-1 5"/></svg><span class="sr-only">Refresh</span></weave-button><weave-button class="icon-button" variant="flat"><svg aria-hidden="true" viewBox="0 0 16 16"><circle cx="3" cy="8" r=".75"/><circle cx="8" cy="8" r=".75"/><circle cx="13" cy="8" r=".75"/></svg><span class="sr-only">More actions</span></weave-button></header>
+  <weave-tabs id="tabs" init="0" gap="8" variant="underlined">
+    <weave-tab label="Results" variant="underlined" for="results" hpadding="8"></weave-tab>
+    <weave-tab label="Controls" variant="underlined" for="controls" hpadding="8"></weave-tab>
+    <weave-tab label="Envelope" variant="underlined" for="envelope" hpadding="8"></weave-tab>
+    <section id="results" class="tab-content" slot="content" aria-label="Results" aria-hidden="false">
+      <p class="scope">4 of 53 buildings · 49 existing excluded</p>
+      <div class="metrics">
+          <div class="metric pass" aria-label="FAR: pass">
+            <span class="dot" aria-hidden="true"></span><span>FAR</span>
+            <div class="value"><span class="value-line"><weave-tooltip text="Boundary crossings count whole buildings." nub="up-right" width="240"><weave-button class="info" variant="flat"><svg aria-hidden="true" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 7v5m0-8v1"/></svg><span class="sr-only">Boundary calculation</span></weave-button></weave-tooltip><span>2.478 / 6.972</span></span><span class="secondary">+4.494 remaining</span></div>
+          </div>
+          <div class="metric unknown" aria-label="Coverage: limit not set">
+            <span class="dot" aria-hidden="true"></span><span>Coverage</span>
+            <div class="value"><span class="value-line"><span>41.2<span class="unit"> %</span> — not set</span></span><span class="secondary"><a class="controls-link" href="#controls">Set in Controls</a></span></div>
+          </div>
+          <div class="metric fail" aria-label="Height: fail">
+            <span class="dot" aria-hidden="true"></span><span>Height</span>
+            <div class="value"><span class="value-line"><weave-tooltip text="Terrain datum: first plot vertex." nub="up-right" width="240"><weave-button class="info" variant="flat"><svg aria-hidden="true" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 7v5m0-8v1"/></svg><span class="sr-only">Height datum</span></weave-button></weave-tooltip><span>44.50 / 38.50<span class="unit"> m</span></span></span><span class="secondary">6.00 m over</span></div>
+          </div>
+          <div class="metric fail" aria-label="Setbacks: fail">
+            <span class="dot" aria-hidden="true"></span><span>Setbacks</span>
+            <div class="value"><span class="value-line"><span>0.50 / 6.00<span class="unit"> m</span></span></span><span class="secondary">E1 · 5.50 m short</span></div>
+          </div>
+      </div>
+      <forma-alert id="issues" title="Issues"></forma-alert>
+    </section>
+    <section id="controls" class="tab-content" slot="content" aria-label="Controls" aria-hidden="true">
+      <div class="preset-row"><span>Preset</span><div class="preset-field">
+        <weave-select id="preset" label="Preset" aria-label="Preset" value="dbc-g4" modal>
+          <span class="market">Project</span>
+          <weave-select-option value="custom">Custom limits</weave-select-option>
+          <weave-select-divider></weave-select-divider>
+          <span class="market">Gulf</span>
+          <weave-select-option value="dbc-g4" data-reference>Dubai · DBC fallback G+4</weave-select-option>
+          <weave-select-option value="dbc-g9" data-reference>Dubai · DBC fallback G+9</weave-select-option>
+          <weave-select-option value="dda-3261507" data-reference>Dubai · DDA plot 3261507 example</weave-select-option>
+          <weave-select-option value="dda-3262935" data-reference>Dubai · DDA plot 3262935 example</weave-select-option>
+          <weave-select-option value="dubai-master">Dubai · Master-developer plot</weave-select-option>
+          <weave-select-option value="riyadh-apartment" data-reference>Riyadh · Apartment</weave-select-option>
+          <weave-select-option value="riyadh-villa" data-reference>Riyadh · Villa</weave-select-option>
+          <weave-select-option value="riyadh-special">Riyadh · KAFD / Qiddiya</weave-select-option>
+          <weave-select-divider></weave-select-divider>
+          <span class="market">Europe</span>
+          <weave-select-option value="bauNVO" data-reference>Germany · BauNVO</weave-select-option>
+          <weave-select-option value="madrid-nz8" data-reference>Madrid · NZ8</weave-select-option>
+        </weave-select>
+        <weave-badge id="preset-reference" variant="text" color="orange">Reference values</weave-badge>
+      </div></div>
+      <div class="field-row"><span>Maximum FAR</span><weave-input label="Maximum FAR" type="number" variant="box" value="6.972" step="0.001" min="0" placeholder="Not set"></weave-input></div>
+      <div class="field-row"><span>Coverage %</span><weave-input label="Coverage %" type="number" variant="box" value="" step="0.1" min="0" placeholder="Not set"></weave-input></div>
+      <div class="field-row"><span>Height m</span><weave-input label="Height m" type="number" variant="box" value="38.5" step="0.1" min="0" placeholder="Not set"></weave-input></div>
+      <div class="field-row"><span>Floors</span><weave-input label="Floors" type="number" variant="box" value="12" step="1" min="0" placeholder="Not set"></weave-input></div>
+      <div class="field-row"><span>Neighbour m</span><weave-input label="Neighbour m" type="number" variant="box" value="6" step="0.1" min="0" placeholder="Not set"></weave-input></div>
+      <div class="field-row"><span>Road m</span><weave-input label="Road m" type="number" variant="box" value="6" step="0.1" min="0" placeholder="Not set"></weave-input></div>
+      <div class="field-row"><span>Floor height m</span><weave-input label="Floor height m" type="number" variant="box" value="3.5" step="0.1" min="0" placeholder="Not set"></weave-input></div>
+      <div class="checkbox-row"><weave-checkbox label="Count existing buildings on plot" showlabel></weave-checkbox></div>
+      <div class="edges">
+        <weave-accordion label="Plot edges" indicatorposition="right" aria-describedby="edge-count">
+          <div class="edge-row"><span>E1 · 42.3 m</span><weave-segmented-buttons-group value="road" aria-label="E1 classification"><weave-segmented-button value="road" density="high">Road</weave-segmented-button><weave-segmented-button value="neighbour" density="high">Neighbour</weave-segmented-button></weave-segmented-buttons-group></div>
+          <div class="edge-row"><span>E2 · 55.3 m</span><weave-segmented-buttons-group value="neighbour" aria-label="E2 classification"><weave-segmented-button value="road" density="high">Road</weave-segmented-button><weave-segmented-button value="neighbour" density="high">Neighbour</weave-segmented-button></weave-segmented-buttons-group></div>
+          <div class="edge-row"><span>E3 · 42.3 m</span><weave-segmented-buttons-group value="neighbour" aria-label="E3 classification"><weave-segmented-button value="road" density="high">Road</weave-segmented-button><weave-segmented-button value="neighbour" density="high">Neighbour</weave-segmented-button></weave-segmented-buttons-group></div>
+          <div class="edge-row"><span>E4 · 55.3 m</span><weave-segmented-buttons-group value="neighbour" aria-label="E4 classification"><weave-segmented-button value="road" density="high">Road</weave-segmented-button><weave-segmented-button value="neighbour" density="high">Neighbour</weave-segmented-button></weave-segmented-buttons-group></div>
+        </weave-accordion>
+        <span id="edge-count" class="edge-count">4 edges</span>
+      </div>
+      <div class="actions"><weave-button variant="outlined">Load preset…</weave-button><weave-button variant="outlined">Save preset</weave-button></div>
+    </section>
+    <section id="envelope" class="tab-content" slot="content" aria-label="Envelope" aria-hidden="true">
+      <div class="checkbox-row"><weave-checkbox id="show-envelope" label="Show permitted envelope" showlabel checked></weave-checkbox></div>
+      <div id="envelope-block">
+        <div class="metrics envelope-metrics">
+          <div class="metric"><span>Buildable area</span><span class="value">1,482<span class="unit"> m²</span></span></div>
+          <div class="metric"><span>Storeys</span><span class="value">11</span></div>
+          <div class="metric"><span>Height</span><span class="value">38.5<span class="unit"> m</span></span></div>
+          <div class="metric"><span>Permitted GFA</span><span class="value">16,302<span class="unit"> m²</span></span></div>
+          <div class="metric"><span>Limited by</span><span class="value">FAR</span></div>
+        </div>
+        <div class="actions"><weave-button variant="solid">Save envelope to library</weave-button><weave-button variant="outlined">Export report (CSV)</weave-button></div>
+      </div>
+    </section>
+  </weave-tabs>
+</main>
+<script type="module">
+  await Promise.all(['weave-tabs', 'weave-checkbox', 'weave-select', 'forma-alert'].map(name => customElements.whenDefined(name)));
+  const tabs = document.querySelector('#tabs');
+  const preset = document.querySelector('#preset');
+  const updatePresetBadge = () => {
+    document.querySelector('#preset-reference').hidden = !preset.querySelector(`weave-select-option[value="${preset.value}"]`)?.hasAttribute('data-reference');
+  };
+  preset.addEventListener('change', updatePresetBadge);
+  updatePresetBadge();
+  document.querySelector('.controls-link').addEventListener('click', event => {
+    event.preventDefault();
+    tabs.init = 1;
+  });
+  document.querySelector('#show-envelope').addEventListener('change', event => {
+    if (event.detail) document.querySelector('#envelope-block').hidden = !event.detail.checked;
+  });
+  // The CDN alert accepts data through a property and starts expanded.
+  const issues = document.querySelector('#issues');
+  issues.alerts = [
+    { id: 'height', title: 'Height exceeds limit by 6.00 m' },
+    { id: 'setback', title: 'Setback E1 short by 5.50 m' }
+  ];
+  issues.handleHeaderClick();
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 {
-  "schema": "forma-zoning-check/preset@1",
+  "schema": "forma-zoning-check/preset@2",
   "label": "Dubai · DDA plot 3261507 (Al Jadaf) example",
   "controls": {
     "jurisdiction": "dubai",

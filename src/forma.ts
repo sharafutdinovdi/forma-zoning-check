@@ -260,11 +260,33 @@ export async function loadSite(): Promise<SiteData> {
   const classify = buildingKind(rootTree);
   const entries = new Map<string, Awaited<ReturnType<typeof buildingGeometry>>>();
   const data: SiteData = { proposalId, rootUrn, proposalName: typeof root.properties?.name === "string" ? root.properties.name : proposalId, plot: null, buildings: [], incompleteGeometry: false, warnings: [] };
-  if (sitePaths.length > 1) throw new Error("Multiple site limits found; keep one parcel site limit, then refresh.");
-  if (sitePaths.length) {
-    const footprint = await Forma.geometry.getFootprint({ path: sitePaths[0], urn: rootUrn });
-    data.plot = footprint?.type === "Polygon" ? normalizeRing(footprint.coordinates) : null;
-    if (!data.plot) throw new Error("Site limit is not a valid polygon; redraw it, then refresh.");
+  const parcels: string[] = [];
+  for (const path of sitePaths) {
+    const { element } = await Forma.elements.getByPath({ path, rootUrn });
+    const footprint = await Forma.geometry.getFootprint({ path, urn: rootUrn });
+    const ring = footprint?.type === "Polygon" ? normalizeRing(footprint.coordinates) : null;
+    if (!ring) throw new Error("Site limit is not a valid polygon; redraw it, then refresh.");
+    if (String(element.properties?.name ?? "").trim().toLowerCase() === "bouwvlak") {
+      if (data.bouwvlakPolygon) throw new Error("Keep only one site limit named bouwvlak.");
+      data.bouwvlakPolygon = ring;
+    } else {
+      parcels.push(path); data.plot = ring;
+      try {
+        const triangles = await Forma.geometry.getTriangles({ path, urn: rootUrn });
+        const zs = Array.from(triangles).filter((_, i) => i % 3 === 2);
+        if (zs.length && zs.every(Number.isFinite)) data.plotBaseZ = Math.min(...zs);
+      } catch { /* Plot elevation may be unavailable; the renderer reports that limitation. */ }
+    }
+  }
+  if (parcels.length > 1) throw new Error('Keep one parcel site limit; name the optional building area "bouwvlak".');
+  if (data.plot && data.plotBaseZ === undefined) {
+    try {
+      const z = await Forma.terrain.getElevationAt({ x: data.plot[0][0], y: data.plot[0][1] });
+      if (Number.isFinite(z)) {
+        data.plotBaseZ = z;
+        data.warnings.push("Envelope base uses terrain at the first parcel vertex as a flat reference; verify the height datum and slope.");
+      }
+    } catch { /* Overlay warns if neither parcel nor building elevations can be obtained. */ }
   }
   if (data.plot) {
     const paths = [...new Set(await Forma.geometry.getPathsByCategory({ category: "building", urn: rootUrn }))];

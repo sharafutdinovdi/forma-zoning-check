@@ -342,3 +342,193 @@ Changes remain uncommitted on `main`, within the permitted files.
 
 Remaining live checks: v2.3 transparency and interactions in both Forma panel placements, live Debug/download behaviour, and previously unverified geometry accuracy and overlay alignment/cleanup.
 The README installation form and Buttons configuration are documented but were not re-entered into a live extension registration in this task.
+
+## v3 — native Forma UI and permitted envelope (2026-09-21)
+
+Implemented on `main`, without commits or restarting the existing server on 5173. No package or lockfile changes, new runtime packages, or motion dependencies. This section supersedes the earlier panel palette, typography, preset schema and temporary-render-only descriptions.
+
+### Native UI and fallback
+
+`index.html` loads the supplied Forma v2 base stylesheet and seven Weave modules: button, input, dropdown/select, checkbox, tooltip, accordion and progress-bar. The select module itself registers `weave-select-option`; there is no separate option-module request. Paths and component event contracts were checked against the live official modules and the official Pathmaker example. `CustomEvent.detail.value` / `.checked` drive controls. Weave buttons use the `disabled` attribute (the CDN button has no `.disabled` property setter).
+
+The local token names map to the supplied DS variables and fallback values. Artifakt Element replaces both previous fonts; numerals use tabular figures. Google Fonts and cut-corner styling are removed. There are no `rem` declarations in local CSS; the root is explicitly 10 px, also in fallback mode. A failed stylesheet or missing imported color variables selects local fallback tokens. `window.zoningDebug.designSystem` records `cdn` or `fallback`; `.components` separately records module availability. The real Debug download includes this object. When all component scripts are unavailable, numeric fixture results remain readable and a reconnect/refresh message is shown; fully offline editable Weave controls are not bundled locally.
+
+CDN limitation: the inspected `weave-select` enumerates only direct child options. Wrapping options in native `optgroup` makes them unselectable. The implementation therefore uses `optgroup` market headings followed by flat `weave-select-option` siblings. This preserves the seven visible market groups and Weave keyboard selection, but does not provide native nested-optgroup accessibility semantics. No replacement select library was introduced.
+
+The supplied accordion defaults to 500 ms and removes its own focus outline. The adapter styles its open shadow root, uses a measured 180 ms content-height transition, and supplies a visible focus outline. Reduced-motion rules also enter the component shadow roots, including the progress bar. Envelope opacity is 160 ms with the same easing as `--ease`; reduced motion uses 0.01 ms. Other retained zoning result/card transitions remain unchanged. Icon buttons have Weave tooltips; result cards, score rows and building data remain local markup.
+
+### Envelope calculation and limitations
+
+`src/envelope.ts` intersects inward per-edge half-planes with the plot using the existing polygon-clipping package, preserving multipart output. A concave parcel can produce a conservative kernel rather than the full usable inset: the UI and CSV say so. Empty intersections return zero volume with a warning. Coverage leaves the footprint unchanged and reports the required area reduction; the displayed volume must not be mistaken for a coverage-compliant building shape.
+
+The three rule forms are shared with existing-building setback verdicts through `requiredSetback`. Road/Neighbour/Other are selectable per edge. Serbia's north side uses Neighbour (1.5 m), south side uses Other (2.5 m); Madrid's rear uses Other. Required classifications are explained in the panel. Unknown setbacks or missing street width produce an unavailable envelope instead of substituting zero.
+
+Height uses `heightLimit`, then whole storeys at editable `floorHeightM` (default 3.5 m). A floors-only preset supplies an assumed height cap from floors × floor height. With neither height nor floors set (including the unedited WA orientation preset), the user must enter a cap; no legal height is inferred from GRZ/GFZ. Re-inset/re-cap runs at most five iterations, requiring area change below 0.1 m² and stable resulting height. Discrete oscillation is reported and falls back to the conservative footprint at the original height cap. FAR, height and floors ties list all binding constraints.
+
+A supplied building-area polygon enables bouwvlak intersection instead of insetting. Files preserve the polygon; `loadSite` also recognizes one second site limit named `bouwvlak` (case-insensitive), while still rejecting multiple parcel limits or multiple bouwvlakken. Coordinates must be in the same local metric frame as the parcel. The example's 18 m road-axis distance, 5 m side/rear distance, 5.5 m eaves and 10 m overall height are preserved. **Road-axis, eaves and additional setback compliance are not established by bouwvlak intersection**: the panel and CSV explicitly require their separate verification. No road axis or roof/eaves geometry is supplied by this specification. Madrid's 10.5 m cornice cap is explicitly an approximate massing height, not a tested roof/access-façade datum.
+
+Parcel-only proposals can calculate and export an envelope without authored buildings. The fixture's isometric SVG previews the calculated volume and is labelled synthetic; it is not an SDK rendering test.
+
+### Rendering and saving — declarations versus live behaviour
+
+Installed SDK: `forma-embedded-view-sdk` 0.96.0. Read `dist/internal/integrate.d.ts`, `library.d.ts`, `scene/render.d.ts`, and `scene/terrain.d.ts` in addition to the declarations already listed above.
+
+- Temporary envelope: `Forma.render.addMesh` and `updateMesh`, accent RGBA with volume alpha 64/255, plus a thin top-outline mesh. Generation cancellation and serialized cleanup are retained. Opacity interpolation uses no library. Placement uses parcel triangle elevation when available; otherwise `Forma.terrain.getElevationAt({ x, y })` at the first parcel vertex, with a flat-reference/datum warning. If those are unavailable, the renderer uses the lowest known building base with a warning, or omits the envelope overlay if no elevation is known.
+- **Saving is available in the declarations.** `Forma.integrateElements.createElementHierarchy({ data: { rootElement, elements } })` accepts `properties.geometry = { type: "Inline", format: "Mesh", verts, faces, doubleSided }`. The returned `urn` is passed to `Forma.library.createItem({ data: { name, status: "success", urn } })`. The button checks `Forma.getCanEdit()` and the active proposal. It saves an estimated generic mesh local to its first footprint vertex and base zero for subsequent user placement from the library; it does not insert a proposal building. The hierarchy method is deprecated but remains explicitly typed for inline meshes in 0.96.0; no GLB encoder/dependency was added.
+- If library creation rejects after element creation, an in-session retry reuses that element URN. Closing the extension before retry can leave an unlisted integrate element; the SDK path is not transactional. Saving does not encode separate coverage shrinkage, roof geometry or legal compliance in the mesh.
+- **Unverified in a live Forma project:** iframe CDN/CSP/font loading, real Weave interaction in both panel placements, terrain/mesh elevation-frame alignment, alpha blending, animation timing over SDK messaging, cleanup across panel lifetimes, named bouwvlak acquisition, edit permission, element ingestion and library persistence/placement. No live SDK write was made during this task. Synthetic save tests check call shape, permission rejection and retry behaviour only.
+
+### Presets and report
+
+All thirteen JSON files use `forma-zoning-check/preset@2`. The nine existing presets retain their values and URLs. Four new presets copy the supplied European research table's numeric values, primary URLs and caveat sentences; WA also retains the second Berlin clearance-source URL and exposes it as a separate source link. No independent legal revalidation is claimed. Both `@1` and `@2` import; `@1` gains the default floor height, and equivalent built-in controls retain their preset id. File-import edge classifications reset because the file has no parcel identity.
+
+CSV order is Checks → Envelope → Buildings → Controls → Metadata. Envelope rows include buildable area, permitted storeys, height, permitted GFA, binding and warnings. Every check row has a Source cell containing the preset URL (both URLs for the WA preset). Existing BOM, escaping, formula protection, numeric formatting and building boundary fields remain. Additional rule forms, polygon and source/control metadata are exported.
+
+### Verification output
+
+```text
+$ npm run typecheck && npm run build
+
+> forma-zoning-check@2.0.0 typecheck
+> tsc --noEmit
+
+> forma-zoning-check@2.0.0 build
+> tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 65 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/icon-BLqHIg4b.svg    0.36 kB │ gzip:  0.22 kB
+dist/index.html                  2.14 kB │ gzip:  0.69 kB
+dist/assets/index-BSkdPrin.css  15.46 kB │ gzip:  3.98 kB
+dist/assets/render-0HSOjSRL.js   5.58 kB │ gzip:  2.52 kB
+dist/assets/forma-Cgde9vAm.js   11.93 kB │ gzip:  4.61 kB
+dist/assets/auto-DEyLCGOg.js    44.31 kB │ gzip: 13.80 kB
+dist/assets/index-DVKvoYWE.js   96.21 kB │ gzip: 32.10 kB
+✓ built in 186ms
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'http://localhost:5173/?fixture=1'
+200
+
+$ node scripts/check-envelope.mjs
+131 assertions passed: per-edge inset, empty inset, Berlin/Madrid/Riyadh convergence, nonconvergence, FAR/height/floors, coverage, bouwvlak, shared verdicts, presets @1 → @2, mesh and CSV.
+```
+
+The throwaway script was deleted after passing. It also checked all thirteen preset files against rules.ts, built-in identity after import, malformed controls, winding/translated coordinates, tie constraints, and synthetic library retry/permission failures.
+
+Exact gzip: JS **53,031 bytes**, CSS **3,984 bytes**, combined **57,015 bytes**. Increase from the recorded v2.3 build is **7,722 bytes**. Motion dependencies: **0 bytes**. CDN Weave modules and Artifakt font transfers are external to these Vite bundle totals.
+
+Chromium: **23 browser assertions passed** for CDN detection, seven visible market groups, Weave numeric/checkbox events, custom editing, three-way edge classification, coverage validation, accordion collapse, envelope fade, reduced motion, focus, 440/240 px overflow, all five app states, and envelope availability on an empty plot. Additional targeted checks blocked CDN styles and confirmed debug `fallback`, card background `rgb(245, 245, 245)` and text `rgb(60, 60, 60)`. Normal mode recorded `cdn`, Artifakt Element and 10 px root size. Controls measured 0.18 s normally, 0.00001 s under reduced motion; envelope opacity also measured 0.00001 s under reduced motion. Focus outline measured at least 2 px. Refresh retained the same controls position (1340.5078125 px) with observed CLS **0**; cold-network initial font loading was not measured. The synthetic error state intentionally logs an error.
+
+Screenshots, visually inspected:
+
+- `docs/screens/ready-440.png`
+- `docs/screens/mini-ready-240.png`
+- `docs/screens/envelope-440.png`
+- `docs/screens/controls-weave-440.png`
+
+The two new images are fixture evidence; no screenshot claims a live Forma envelope or library save. All changes remain uncommitted on `main`.
+
+## v4: approved mockup implementation (2026-09-22)
+
+The floating panel uses Results, Controls and Envelope tabs with proposal-specific local storage.
+The mini panel contains the header, four metric rows and the counted/total building line.
+The Results alert starts collapsed and supports keyboard activation.
+The controls use native Weave inputs, grouped preset options, conditional reference badges and segmented edge classification.
+The envelope checkbox starts checked, matching the mockup; unchecking hides its metrics/actions and requests overlay cleanup through the existing rendering path.
+The former cards, building disclosure, source links, disclaimer, proposal name, ready-state summary and custom UI transitions are absent.
+Source labels and URLs remain in CSV Source cells; full preset caveats and the disclaimer remain in CSV metadata/control rows.
+Boundary and large-plot warnings are exported in the CSV warnings row, alongside captured terrain/render warnings.
+
+The computation and fixture files have identical SHA-256 hashes to their state at the start of this task: `metrics.ts`, `envelope.ts`, `geometry.ts`, `rules.ts`, `forma.ts`, `sync.ts`, `render.ts` and `fixture.ts`.
+Existing v3 working-tree edits remain intact.
+Changes remain uncommitted on `main`; the existing dev server on port 5173 was not restarted.
+
+### Render comparison
+
+The real-app screenshots use fixture data, 440/240 CSS-pixel viewports and device scale factor 2.
+The approved mockup PNGs were opened and compared visually with the real-app renders.
+The header, tabs, metric rhythm, units, field widths, native components and action placement follow the mockup structure.
+The following differences are deliberate or attributable to the unchanged fixture/browser:
+
+- Results and mini show `4 of 4 buildings`; the unmodified fixture has no existing buildings by default, while the mockup has 49 excluded existing buildings.
+- Coverage is 23.0%, height is 91.00 / 85.00 m and setbacks are 2.00 / 7.50 m in the actual fixture; the FAR and displayed margins coincide with the mockup.
+- Results retains Floors and Parking as required by the spec; Floors adds a third issue and 88 px to the metric stack.
+- Parking prompts for unit counts and a parking inventory; the current control schema has no editable parking limit.
+- Controls uses the fixture's DDA 3261507 preset and its actual values; the mockup labels its illustrative custom values as DBC G+4.
+- Metric labels use the explicitly specified DS 11-medium token; the mockup HTML inherits 12-regular for those labels.
+- Preset-row vertical padding is 4 px under the explicit 4/8/16 spacing rule; the mockup uses 6 px, placing the subsequent fields 4 px lower.
+- Native numeric inputs render decimal commas in the local Chrome environment; the input values and CSV retain decimal points.
+- Envelope values match the mockup; Save envelope to library is disabled outside Forma with a tooltip explaining the required host.
+- Presets with an Other edge rule retain the Other segment; DBC controls retain their conditional height-rule checkbox.
+- Method tooltips describe actual fixture assumptions, including estimated floors; the mockup uses illustrative boundary/terrain caveats.
+
+Screenshots: [Results](docs/screens/ready-440.png), [Controls](docs/screens/controls-440.png), [Envelope](docs/screens/envelope-440.png), [Mini](docs/screens/mini-ready-240.png).
+
+### Verification output
+
+```text
+$ npm run typecheck && npm run build
+
+> forma-zoning-check@2.0.0 typecheck
+> tsc --noEmit
+
+> forma-zoning-check@2.0.0 build
+> tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 64 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/icon-BLqHIg4b.svg    0.36 kB │ gzip:  0.22 kB
+dist/index.html                  2.68 kB │ gzip:  0.75 kB
+dist/assets/index-D1yOpWjK.css   5.50 kB │ gzip:  1.76 kB
+dist/assets/render-cbxfr8ib.js   5.58 kB │ gzip:  2.51 kB
+dist/assets/forma-Di-7uCH5.js   11.93 kB │ gzip:  4.61 kB
+dist/assets/auto-DEyLCGOg.js    44.31 kB │ gzip: 13.80 kB
+dist/assets/index-CHwe231V.js   88.54 kB │ gzip: 29.79 kB
+✓ built in 185ms
+
+$ curl -s -o /dev/null -w '%{http_code}\n' 'http://localhost:5173/?fixture=1'
+200
+
+$ grep -rniE 'compliance statement|MOMAH|Arabic|Proposal 1|massing check|Rule source' src/ | tee /dev/stderr | wc -l
+5
+
+$ node scripts/check-ui.mjs
+110 assertions passed: tabs per proposal, link, all preset badges, copy, native controls, edge classification, counts, CSV, all states at 440/320/240 px, focus, motion, unchanged computation.
+Refresh CLS: 0. Four real-app fixture screenshots regenerated.
+
+$ git diff --check
+(no output)
+```
+
+The broad grep is an unresolved contradiction in the spec: it matches the required CSV disclaimer, the source URL declaration and two preserved source/preset records in `rules.ts`, and the preserved proposal name in `fixture.ts`.
+None of these default strings is rendered by the UI.
+The browser checks verify the prohibited-copy pattern against the rendered panel for every built-in preset.
+Changing those data or disguising literals solely to obtain a zero grep count would violate the preservation requirements.
+
+The throwaway `scripts/check-ui.mjs` is deleted after verification.
+Exact Node zlib totals are JS 50,726 bytes and CSS 1,762 bytes, combined 52,488 bytes gzip: 4,527 bytes smaller than the v3 baseline of 57,015 bytes.
+No npm dependencies or lockfiles change; animation dependencies add 0 bytes.
+CDN component and font transfers are external to these Vite bundle totals.
+
+Browser verification covers tab persistence across reloads, refresh and distinct proposals; Set in Controls navigation; reference-badge eligibility; native numeric/checkbox changes; road/Other classification; counted/excluded totals; CSV metadata; collapsed/keyboard Issues; disabled fixture library saving; and envelope checkbox behavior.
+Loading, error, no-site-limit, no-buildings-on-plot and ready states have no horizontal overflow at 440, 320 and 240 px.
+Non-ready states provide an action or loading message.
+Keyboard focus has a visible outline; application metric styles have zero transition duration and no animation under reduced motion.
+Only the native DS tab, accordion and alert behavior remains in the UI; the CDN does not suppress all its native transitions under reduced motion, as documented by the approved mockup.
+Refresh has observed CLS 0; cold-network initial font loading is not measured.
+
+### Unverified host behavior
+
+No authenticated Forma session is used.
+Live iframe/CSP/font loading, tab storage across real proposal switches, cross-panel sync, automatic envelope placement/cleanup, terrain datum accuracy, edit permission and library persistence remain unverified.
+The retained scene-renderer fade is unchanged; its timing over SDK messaging is not a browser-fixture result.
+Saving a library item is disabled in the fixture and is not claimed as tested here.
+
+The v4 task changes `index.html`, `src/main.ts`, `src/csv.ts`, `src/styles.css`, `src/ui/app.ts`, `src/ui/controls.ts`, `src/ui/results.ts`, `src/ui/mini.ts`, `src/ui/tokens.css`, this file and the four linked screenshots.
+Other dirty files shown by Git belong to the pre-existing v3 work.

@@ -1,0 +1,23 @@
+{
+  "schema": "forma-zoning-check/preset@2",
+  "label": "Valkenswaard · Buitengebied 2 agricultural",
+  "controls": {
+    "jurisdiction": "netherlands",
+    "presetId": "nl-valkenswaard-buitengebied2-agri",
+    "roadEdges": [],
+    "includeExisting": false,
+    "bouwvlakMode": true,
+    "roadAxisDistanceM": 18,
+    "setbackNeighbourM": 5,
+    "maxEavesM": 5.5,
+    "maxHeightM": 10,
+    "sourceLabel": "Adopted plan arts. 3.2.1–3.2.2",
+    "sourceUrl": "https://www.ruimtelijkeplannen.nl/documents/NL.IMRO.0858.BPbuitengebied2-VA01/r_NL.IMRO.0858.BPbuitengebied2-VA01.html",
+    "caveat": "Demonstration fixture for one agricultural plan, not a Dutch default."
+  },
+  "source": {
+    "label": "Adopted plan arts. 3.2.1–3.2.2",
+    "url": "https://www.ruimtelijkeplannen.nl/documents/NL.IMRO.0858.BPbuitengebied2-VA01/r_NL.IMRO.0858.BPbuitengebied2-VA01.html"
+  },
+  "notes": "Demonstration fixture for one agricultural plan, not a Dutch default."
+}

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zoning Check — mini mockup</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://app.autodeskforma.eu/design-system/v2/forma/styles/base.css">
+  <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/button/weave-button.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fff; color: var(--text-color-medium-default); font: var(--12-regular); }
+    .panel { width: 100%; max-width: 440px; }
+    header { height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 16px; }
+    h1 { flex: 1; margin: 0; font: var(--12-bold); white-space: nowrap; }
+    svg { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .icon-button { width: 28px; height: 28px; color: var(--text-color-medium-default); }
+    .icon-button::part(button) { width: 28px; height: 28px; padding: 0; color: inherit; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .metrics { display: grid; gap: 8px; }
+    .metric { height: 36px; display: grid; grid-template-columns: 6px auto 1fr; column-gap: 8px; align-items: start; }
+    .dot { width: 6px; height: 6px; margin-top: 5px; border-radius: 50%; background: #6a9728; }
+    .fail .dot { background: #dd2222; }
+    .unknown .dot { background: rgba(60,60,60,.4); }
+    .value { text-align: right; font: var(--12-medium); font-variant-numeric: tabular-nums; }
+    .value-line { display: flex; align-items: center; justify-content: flex-end; gap: 4px; height: 16px; white-space: nowrap; }
+    .unit, .secondary { font: var(--11-regular); }
+    .secondary { display: block; margin-top: 4px; color: var(--text-color-light); }
+    a { color: var(--text-color-link-default); }
+    a:focus-visible { outline: 2px solid var(--border-color-accent-default); outline-offset: 2px; }
+
+    .panel { max-width: 240px; }
+    header { padding: 0 8px; gap: 4px; }
+    .mini-content { padding: 16px; }
+    .metric { grid-template-columns: 6px auto 1fr; }
+    .fail .value { color: #dd2222; }
+    .counts { margin: 16px 0 0; color: var(--text-color-light); font: var(--11-regular); }
+  </style>
+</head>
+<body>
+<main class="panel">
+<header><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M2 14V6h5v8M7 14V2h7v12M1 14h14M4 8h1m-1 3h1m4-6h3M9 8h3m-3 3h3"/></svg><h1>Zoning Check</h1><weave-button class="icon-button" variant="flat"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M13 3v4H9M13 7a5 5 0 1 0-1 5"/></svg><span class="sr-only">Refresh</span></weave-button><weave-button class="icon-button" variant="flat"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M9 2h5v5m0-5L7 9M6 3H2v11h11v-4"/></svg><span class="sr-only">Open in panel</span></weave-button></header>
+  <div class="mini-content">
+    <div class="metrics">
+          <div class="metric pass" aria-label="FAR: pass">
+            <span class="dot" aria-hidden="true"></span><span>FAR</span>
+            <div class="value"><span class="value-line"><span>2.478 / 6.972</span></span><span class="secondary">+4.494 remaining</span></div>
+          </div>
+          <div class="metric unknown" aria-label="Coverage: limit not set">
+            <span class="dot" aria-hidden="true"></span><span>Coverage</span>
+            <div class="value"><span class="value-line"><span>41.2<span class="unit"> %</span> / —</span></span><span class="secondary">Limit not set</span></div>
+          </div>
+          <div class="metric fail" aria-label="Height: fail">
+            <span class="dot" aria-hidden="true"></span><span>Height</span>
+            <div class="value"><span class="value-line"><span>44.50 / 38.50<span class="unit"> m</span></span></span><span class="secondary">6.00 m over</span></div>
+          </div>
+          <div class="metric fail" aria-label="Setbacks: fail">
+            <span class="dot" aria-hidden="true"></span><span>Setbacks</span>
+            <div class="value"><span class="value-line"><span>0.50 / 6.00<span class="unit"> m</span></span></span><span class="secondary">E1 · 5.50 m short</span></div>
+          </div>
+    </div>
+    <p class="counts">4 of 53 buildings</p>
+  </div>
+</main>
+</body>
+</html>

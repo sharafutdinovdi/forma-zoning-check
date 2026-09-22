@@ -1,29 +1,21 @@
+/* Local names map to Forma DS; fallback values keep reports readable offline. */
 :root {
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --bg: #ffffff;
-  --surface: #f9fafb;
-  --surface-deep: #f3f4f6;
-  --stroke: rgba(17, 24, 39, 0.10);
-  --line: rgba(17, 24, 39, 0.12);
-  --text: #111827;
-  --muted: #4b5563;
-  --chip: #6b7280;
-  --primary: #007aff;
-  --primary-hover: #0066d6;
-  --primary-soft: rgba(0, 122, 255, 0.10);
-  --ok: #16a34a;
-  --ok-soft: rgba(22, 163, 74, 0.10);
-  --fail: #dc2626;
-  --fail-soft: rgba(220, 38, 38, 0.08);
-  --neutral-soft: rgba(17, 24, 39, 0.04);
-  --warn: #f59e0b;
-  --radius-card: 12px;
-  --radius-input: 8px;
-  --radius-pill: 999px;
-  --cut-corner: 18px;
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --space: 4px;
-  font-family: var(--font-sans); color: var(--text); background: var(--bg); color-scheme: light;
+  --font-sans: "Artifakt Element", Arial, sans-serif;
+  font-size: 10px;
   font-synthesis: none;
+  color-scheme: light;
+}
+/* The fallback also supplies variables consumed inside Weave shadow roots. */
+:root[data-design-system="fallback"] {
+  --background-color-surface-100: #fff; --background-color-surface-200: #f5f5f5;
+  --background-color-accent: #0696d7; --text-color-medium-default: #3c3c3c;
+  --text-color-light: rgba(60,60,60,.7); --border-color-input-box: rgba(128,128,128,.2);
+  --border-color-medium-default: #808080; --border-color-divider-light: rgba(60,60,60,.1);
+  --border-color-accent-default: #0696d7; --halo-color-neutral-focus: rgba(6,150,215,.35);
+  --halo-color-neutral-hover: rgba(60,60,60,.1); --transparent: transparent; --disabled: .5;
+  --12-regular: 400 12px/16px var(--font-sans); --12-medium: 600 12px/16px var(--font-sans);
+  --11-medium: 600 11px/16px var(--font-sans); --text-color-link-default: #006eaf; --status-color-warning: #faa21b;
+  --12-bold: 700 12px/16px var(--font-sans); --14-regular: 400 14px/20px var(--font-sans);
+  --14-medium: 600 14px/20px var(--font-sans); --11-regular: 400 11px/16px var(--font-sans);
+  --z-dropdown: 100; --z-navigation: 100;
 }

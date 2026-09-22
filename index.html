@@ -1,13 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-US">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="/assets/icon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap&subset=latin,cyrillic" rel="stylesheet" />
+    <script>
+      window.zoningDebug = { designSystem: "loading", components: "loading" };
+      function zoningStylesLoaded() {
+        const native = getComputedStyle(document.documentElement).getPropertyValue("--background-color-surface-100").trim();
+        document.documentElement.dataset.designSystem = native ? "cdn" : "fallback";
+        window.zoningDebug.designSystem = native ? "cdn" : "fallback";
+      }
+    </script>
+    <link rel="stylesheet" href="https://app.autodeskforma.eu/design-system/v2/forma/styles/base.css" onload="zoningStylesLoaded()" onerror="document.documentElement.dataset.designSystem='fallback';window.zoningDebug.designSystem='fallback'" />
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/button/weave-button.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/input/weave-input.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/dropdown/weave-select.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/checkbox/weave-checkbox.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/tooltip/weave-tooltip.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/accordion/weave-accordion.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/progress-bar/weave-progress-bar.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/tab/weave-tab.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/badge/weave-badge.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/weave/components/segmented-buttons-group/weave-segmented-buttons-group.js"></script>
+    <script type="module" src="https://app.autodeskforma.eu/design-system/v2/forma/components/alert/forma-alert.js"></script>
     <title>Zoning Check</title>
   </head>
   <body>

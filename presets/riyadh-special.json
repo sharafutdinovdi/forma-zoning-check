@@ -1,5 +1,5 @@
 {
-  "schema": "forma-zoning-check/preset@1",
+  "schema": "forma-zoning-check/preset@2",
   "label": "Riyadh · KAFD / Qiddiya parcel",
   "controls": {
     "jurisdiction": "riyadh",

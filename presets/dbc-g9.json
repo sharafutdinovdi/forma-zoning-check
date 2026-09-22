@@ -1,5 +1,5 @@
 {
-  "schema": "forma-zoning-check/preset@1",
+  "schema": "forma-zoning-check/preset@2",
   "label": "Dubai · DBC fallback G+9",
   "controls": {
     "jurisdiction": "dubai",

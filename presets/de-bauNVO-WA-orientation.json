@@ -1,0 +1,47 @@
+{
+  "schema": "forma-zoning-check/preset@2",
+  "label": "WA · GRZ/GFZ orientation",
+  "controls": {
+    "jurisdiction": "germany",
+    "presetId": "de-bauNVO-WA-orientation",
+    "roadEdges": [],
+    "includeExisting": false,
+    "maxCoveragePct": 40,
+    "maxFar": 1.2,
+    "setbackRules": [
+      {
+        "edgeKind": "road",
+        "rule": {
+          "type": "maxOfHeightFactor",
+          "factor": 0.4,
+          "min": 3
+        }
+      },
+      {
+        "edgeKind": "neighbour",
+        "rule": {
+          "type": "maxOfHeightFactor",
+          "factor": 0.4,
+          "min": 3
+        }
+      },
+      {
+        "edgeKind": "other",
+        "rule": {
+          "type": "maxOfHeightFactor",
+          "factor": 0.4,
+          "min": 3
+        }
+      }
+    ],
+    "sourceLabel": "BauNVO §17; BauO Bln §6",
+    "sourceUrl": "https://www.gesetze-im-internet.de/baunvo/__17.html",
+    "secondarySourceUrl": "https://gesetze.berlin.de/bsbe/document/jlr-NNLBE00004835NN00000000027",
+    "caveat": "Orientational upper values, not parcel rights; load the `Bebauungsplan` and full Berlin exceptions."
+  },
+  "source": {
+    "label": "BauNVO §17; BauO Bln §6",
+    "url": "https://www.gesetze-im-internet.de/baunvo/__17.html"
+  },
+  "notes": "Orientational upper values, not parcel rights; load the `Bebauungsplan` and full Berlin exceptions."
+}

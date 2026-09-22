@@ -1,0 +1,46 @@
+{
+  "schema": "forma-zoning-check/preset@2",
+  "label": "General family housing · fallback",
+  "controls": {
+    "jurisdiction": "serbia",
+    "presetId": "rs-general-family-fallback",
+    "roadEdges": [],
+    "includeExisting": false,
+    "maxCoveragePct": 40,
+    "maxFar": 1.2,
+    "maxFloors": 4,
+    "setbackRoadM": 3,
+    "setbackNeighbourM": 1.5,
+    "setbackRules": [
+      {
+        "edgeKind": "road",
+        "rule": {
+          "type": "fixed",
+          "value": 3
+        }
+      },
+      {
+        "edgeKind": "neighbour",
+        "rule": {
+          "type": "fixed",
+          "value": 1.5
+        }
+      },
+      {
+        "edgeKind": "other",
+        "rule": {
+          "type": "fixed",
+          "value": 2.5
+        }
+      }
+    ],
+    "sourceLabel": "Rulebook arts. 36, 49–51",
+    "sourceUrl": "https://www.mgsi.gov.rs/sites/default/files/Pravilnik%20o%20opstim%20pravilima%20za%20parcelaciju%2C%20regulaciju%20i%20zgradnju.pdf",
+    "caveat": "Fallback only; reject as authoritative when the Belgrade plan or location information differs."
+  },
+  "source": {
+    "label": "Rulebook arts. 36, 49–51",
+    "url": "https://www.mgsi.gov.rs/sites/default/files/Pravilnik%20o%20opstim%20pravilima%20za%20parcelaciju%2C%20regulaciju%20i%20zgradnju.pdf"
+  },
+  "notes": "Fallback only; reject as authoritative when the Belgrade plan or location information differs."
+}

@@ -1,7 +1,7 @@
 import clipping from "polygon-clipping";
 import { intersection, multiArea, normalizeRing, pointInPolygon, polygonArea, segmentDistance } from "./geometry";
 import type { Ring, Polygon, MultiPolygon } from "./geometry";
-import { heightLimit } from "./rules";
+import { heightLimit, requiredSetback } from "./rules";
 import type { ParcelControls } from "./rules";
 
 export type Status = "pass" | "fail" | "insufficient";
@@ -28,6 +28,8 @@ export interface SiteData {
   rootUrn?: string;
   proposalName: string;
   plot: Ring | null;
+  bouwvlakPolygon?: Ring;
+  plotBaseZ?: number;
   buildings: Building[];
   incompleteGeometry: boolean;
   incompleteExistingGeometry?: boolean;
@@ -82,15 +84,7 @@ function upper(id: string, label: string, value: number | null, limit: number | 
     note: limit === undefined ? "limit not set" : value === null ? "geometry or floor data unavailable" : note };
 }
 export function edgeLimit(controls: ParcelControls, edge: number, building: Building): number | undefined {
-  if (controls.roadEdges.includes(edge)) {
-    if (controls.jurisdiction === "riyadh") {
-      const width = controls.riyadhFrontStreetWidthM;
-      return width === undefined || width <= 0 ? undefined : Math.max(width / 5, controls.roadEdges[0] === edge ? 3 : 2);
-    }
-    return controls.setbackRoadM;
-  }
-  if (controls.jurisdiction === "riyadh" && controls.riyadhApartmentRule) return building.floors === null ? undefined : building.floors > 5 ? 3 : 2;
-  return controls.setbackNeighbourM;
+  return requiredSetback(controls, edge, building.height ?? undefined, building.floors ?? undefined);
 }
 export function setbackChecks(plot: Ring, buildings: Building[], controls: ParcelControls): EdgeCheck[] {
   return plot.flatMap((a, edge) => buildings.filter(b => buildingPolygons(b).length).map(building => {

@@ -1,0 +1,49 @@
+{
+  "schema": "forma-zoning-check/preset@2",
+  "label": "Madrid · Norma Zonal 8 grade 2",
+  "controls": {
+    "jurisdiction": "spain",
+    "presetId": "es-madrid-nz8-grade2",
+    "roadEdges": [],
+    "includeExisting": false,
+    "maxCoveragePct": 30,
+    "maxFar": 0.5,
+    "maxHeightM": 10.5,
+    "maxFloors": 3,
+    "heightDatum": "cornice",
+    "setbackRoadM": 7,
+    "setbackNeighbourM": 5,
+    "setbackRules": [
+      {
+        "edgeKind": "road",
+        "rule": {
+          "type": "fixed",
+          "value": 7
+        }
+      },
+      {
+        "edgeKind": "neighbour",
+        "rule": {
+          "type": "fixed",
+          "value": 5
+        }
+      },
+      {
+        "edgeKind": "other",
+        "rule": {
+          "type": "maxOfHeightFactor",
+          "factor": 0.6666666666666666,
+          "min": 4
+        }
+      }
+    ],
+    "sourceLabel": "Madrid PGOUM arts. 8.8.6–8.8.10",
+    "sourceUrl": "https://transparencia.madrid.es/UnidadesDescentralizadas/UDCUrbanismo/PGOUM/CompendioNNUU/ficheros/COMPENDIO_MPG_NNUU_24_09_2025.pdf",
+    "caveat": "Only for parcels mapped to Norma Zonal 8 grade 2; consolidated PDF is informative and later/particular planning prevails."
+  },
+  "source": {
+    "label": "Madrid PGOUM arts. 8.8.6–8.8.10",
+    "url": "https://transparencia.madrid.es/UnidadesDescentralizadas/UDCUrbanismo/PGOUM/CompendioNNUU/ficheros/COMPENDIO_MPG_NNUU_24_09_2025.pdf"
+  },
+  "notes": "Only for parcels mapped to Norma Zonal 8 grade 2; consolidated PDF is informative and later/particular planning prevails."
+}
