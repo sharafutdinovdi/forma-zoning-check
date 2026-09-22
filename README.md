@@ -117,6 +117,11 @@ Live captures from **2026-09-22** show v4 in Forma's EU region with SDK **0.96.0
 This covered the floating and mini panels, controls, verdicts, the 3D tint, the generated envelope, the CSV download and saving the envelope to the project Library.
 Bouwvlak mode and the European presets were exercised against the shipped rules and geometry, not on a European site; run them on a local plot before relying on the numbers.
 
+## Build your own
+
+Run `npm create forma-extension@latest my-extension` to scaffold a Forma extension with the same native UI and host adapter.
+The generated project comes from [autodesk-forma-extension-template](https://github.com/sharafutdinovdi/autodesk-forma-extension-template) and depends on [forma-extension-kit](https://github.com/sharafutdinovdi/forma-extension-kit), which carries the proposal, geometry and cross-panel adapters this extension uses.
+
 ## Licence
 
 [MIT](LICENSE), Copyright (c) 2026 Dinar Sharafutdinov.
