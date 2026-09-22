@@ -1,91 +1,79 @@
 # Zoning Check
 
-Check proposal massing against parcel controls in Autodesk Forma, share presets, and export the verdict.
+An Autodesk Forma extension that checks a proposal against the parcel controls of its plot and generates the permitted envelope.
 
-![Floating panel and 3D tint in live Forma](docs/screens/live-forma-floating.png)
-![Compact analysis panel in live Forma](docs/screens/live-forma-mini.png)
-
-Owner-captured Forma sessions, 2026-09-21, before the v2.3 interface changes; the mini screenshot records an earlier geometry failure.
-Current v2.3 synthetic previews: [full panel](docs/screens/ready-440.png), [mini panel](docs/screens/mini-ready-240.png), [collapsed controls](docs/screens/controls-collapsed-440.png), [actions menu](docs/screens/overflow-menu-440.png).
+<img src="docs/screens/live-results.png" alt="Results and remaining margins in live Forma, with 3D status tint and the mini panel" width="100%">
 
 ## What it does
 
-- Compares FAR, coverage, height, floors and setbacks with parcel limits; missing limits or geometry remain incomplete.
-- Shows results in a floating panel and compact analysis view, with temporary 3D building tints and automatic proposal refresh.
-- Shares controls through JSON preset files and exports a CSV with measurements, limits, source attribution and caveats.
+- Verdicts for FAR, coverage, height, floors and setbacks, with the remaining margin or exceedance.
+- A generated permitted envelope with buildable area, storeys and the binding constraint.
+- Presets for Dubai, Riyadh, Serbia, Germany, the Netherlands and Spain, plus plot-specific manual entry.
+- A CSV report carrying every measured value, limit and recorded source.
 
-## How a coordinator uses it
+## How it is used
 
-1. Draw one closed **site limit** around the parcel.
-2. Add proposal buildings inside it; existing context buildings are excluded unless **Include existing** is enabled.
-3. Open **Parcel controls**, choose a preset or **Load preset…**, then classify road edges and enter any missing plot limits.
-4. Read the verdict and inspect the 3D tint: green passes local checks, red fails, grey needs more data.
-5. Open **… → Export CSV** to share the report; **Save preset** shares the current controls for another project.
+1. Draw one closed **site limit** around the plot.
+2. Add or import proposal buildings; existing buildings are excluded unless **Count existing buildings on plot** is enabled.
+3. In **Controls**, pick a preset or enter the plot controls, classify the plot edges and supply street width where required.
 
-Jurisdiction comes from the preset; **Rules:** identifies the active rule family.
-Custom retains the previous jurisdiction, and manual edits retain source attribution.
-Controls are stored per proposal and collapse after a preset is selected and saved.
-Imported files clear road-edge selections; select roads again on the target plot.
-For Riyadh rules, select the front road first and enter the street width.
-The [preset file schema](docs/preset-schema.md) describes validation and the [downloadable presets](presets/).
+   ![Controls tab with a preset, Reference values badge and numeric fields](docs/screens/live-controls.png)
 
-## Presets and sources
+4. Read the verdicts and 3D tint: green passes, red fails, grey needs data; inspect the generated volume in **Envelope**.
 
-The table below is generated from [src/rules.ts](src/rules.ts); limits are starting points for review against the current parcel document.
-DDA examples apply to the named plots, and plot-specific entries deliberately leave limits blank.
+   ![Envelope tab with buildable area, storeys, binding constraint and the generated volume in 3D](docs/screens/live-envelope.png)
 
-<!-- PRESETS:START -->
-| Preset | Limits | Source | Caveat |
+5. In **Envelope**, choose **Export report (CSV)** or **Save envelope to library** for later placement in Forma.
+
+## Presets
+
+| Preset | What it fixes | Source | Reference/Plot-specific |
 | --- | --- | --- | --- |
-| [Dubai · DBC fallback G+4](presets/dbc-g4.json) | G+4; height 30 m (6 × floors); neighbour 3.75 m; road 0 m | [DBC 2021 · B.4.2](https://dmpmedia.dm.gov.ae/uploads/2021/12/Dubai%20Building%20Code_English_2021%20Edition_compressed.pdf) | fallback only; plot DCR/affection plan prevails |
-| [Dubai · DBC fallback G+9](presets/dbc-g9.json) | G+9; height 60 m (6 × floors); neighbour 7.5 m; road 0 m | [DBC 2021 · B.4.2](https://dmpmedia.dm.gov.ae/uploads/2021/12/Dubai%20Building%20Code_English_2021%20Edition_compressed.pdf) | fallback only; plot DCR/affection plan prevails |
-| [Dubai · DDA plot 3261507 (Al Jadaf) example](presets/dda-3261507.json) | FAR 6.972; G+20; height 85 m; neighbour 4 m; road 7.5 m | [DDA · plot 3261507](https://gis.dda.gov.ae/DIS?PlotNumber=3261507&handler=PlotInfo) | Example only: 4 / 7.5 / 4 / 4 m approximated as neighbour 4 m, road 7.5 m; podium controls excluded. |
-| [Dubai · DDA plot 3262935 (Al Jadaf) example](presets/dda-3262935.json) | FAR 2.161; G+15; neighbour 5 m; road 10 m | [DDA · plot 3262935](https://gis.dda.gov.ae/DIS?PlotNumber=3262935&handler=PlotInfo) | Example only: 5 / 10 / 5 / 5 m approximated as neighbour 5 m, road 10 m. |
-| [Dubai · master-developer plot (Downtown / Emaar)](presets/dubai-master.json) | Enter from plot document | [Emaar · Downtown Dubai](https://www.emaar.com/en/our-communities/downtown-dubai) | controls not public; enter from plot document |
-| [Riyadh · MOMAH 2024 villa (R3)](presets/riyadh-villa.json) | coverage 75%; G+1; neighbour 1.5 m; road max(width/5, 3 m front / 2 m other) | [MOMAH 2024 · §§3.1, 4.1 (Arabic)](https://momah.gov.sa/sites/default/files/2025-11/ashtratat%20ansha%20almbany%20alsknyt9%20ywlyh%202024.pdf) | 2 floors + roof annex; annex and basement classification not checked. Enter street width and classify road edges; plot system prevails. |
-| [Riyadh · MOMAH 2024 apartment (R2)](presets/riyadh-apartment.json) | coverage 65%; height 23 m; road max(width/5, 3 m front / 2 m other); neighbour 2 / 3 m by floors | [MOMAH 2024 · §§3.2, 4.2 (Arabic)](https://momah.gov.sa/sites/default/files/2025-11/ashtratat%20ansha%20almbany%20alsknyt9%20ywlyh%202024.pdf) | Ground coverage only; neighbour 2 m for ≤5 floors, 3 m for >5. Roof annex excluded; enter street width. Above 23 m is outside this preset’s scope. |
-| [Riyadh · KAFD / Qiddiya parcel](presets/riyadh-special.json) | Enter from plot document | [Riyadh · plot building-system service](https://www.alriyadh.gov.sa/ar/services/40?mainServiceCode=2) | controls not public; enter from plot document; special-authority parcel controls prevail |
-| [Custom](presets/custom.json) | Enter from plot document | User-entered | Enter controls from the current plot document. |
-<!-- PRESETS:END -->
+| [Dubai · DBC fallback G+4](presets/dbc-g4.json) | 5 floors; height 30 m; neighbour/road 3.75/0 m | [DBC B.4.2](https://dmpmedia.dm.gov.ae/uploads/2021/12/Dubai%20Building%20Code_English_2021%20Edition_compressed.pdf) | Reference |
+| [Dubai · DBC fallback G+9](presets/dbc-g9.json) | 10 floors; height 60 m; neighbour/road 7.5/0 m | [DBC B.4.2](https://dmpmedia.dm.gov.ae/uploads/2021/12/Dubai%20Building%20Code_English_2021%20Edition_compressed.pdf) | Reference |
+| [Dubai · DDA 3261507 example](presets/dda-3261507.json) | FAR 6.972; 21 floors; 85 m; neighbour/road 4/7.5 m | [DDA plot](https://gis.dda.gov.ae/DIS?PlotNumber=3261507&handler=PlotInfo) | Reference |
+| [Dubai · DDA 3262935 example](presets/dda-3262935.json) | FAR 2.161; 16 floors; neighbour/road 5/10 m | [DDA plot](https://gis.dda.gov.ae/DIS?PlotNumber=3262935&handler=PlotInfo) | Reference |
+| [Dubai · Downtown / Emaar](presets/dubai-master.json) | Manual plot controls | [Emaar](https://www.emaar.com/en/our-communities/downtown-dubai) | Plot-specific |
+| [Riyadh · MOMAH villa R3](presets/riyadh-villa.json) | Coverage 75%; 2 floors; neighbour 1.5 m; roads by width | [MOMAH §§3.1, 4.1](https://momah.gov.sa/sites/default/files/2025-11/ashtratat%20ansha%20almbany%20alsknyt9%20ywlyh%202024.pdf) | Reference |
+| [Riyadh · MOMAH apartment R2](presets/riyadh-apartment.json) | Coverage 65%; height 23 m; neighbour 2–3 m; roads by width | [MOMAH §§3.2, 4.2](https://momah.gov.sa/sites/default/files/2025-11/ashtratat%20ansha%20almbany%20alsknyt9%20ywlyh%202024.pdf) | Reference |
+| [Riyadh · KAFD / Qiddiya](presets/riyadh-special.json) | Manual plot controls | [Plot building-system service](https://www.alriyadh.gov.sa/ar/services/40?mainServiceCode=2) | Plot-specific |
+| [Serbia · family housing fallback](presets/rs-general-family-fallback.json) | Coverage 40%; FAR 1.2; 4 floors; road/north/south 3/1.5/2.5 m | [Rulebook arts. 36, 49–51](https://www.mgsi.gov.rs/sites/default/files/Pravilnik%20o%20opstim%20pravilima%20za%20parcelaciju%2C%20regulaciju%20i%20zgradnju.pdf) | Reference |
+| [Germany · WA orientation](presets/de-bauNVO-WA-orientation.json) | GRZ 0.4; GFZ 1.2; setbacks max(0.4H, 3 m) | [BauNVO §17](https://www.gesetze-im-internet.de/baunvo/__17.html); [BauO Bln §6](https://gesetze.berlin.de/bsbe/document/jlr-NNLBE00004835NN00000000027) | Reference |
+| [Netherlands · Valkenswaard agricultural](presets/nl-valkenswaard-buitengebied2-agri.json) | Bouwvlak; height 10 m; eaves/road-axis limits need separate review | [Plan arts. 3.2.1–3.2.2](https://www.ruimtelijkeplannen.nl/documents/NL.IMRO.0858.BPbuitengebied2-VA01/r_NL.IMRO.0858.BPbuitengebied2-VA01.html) | Reference |
+| [Spain · Madrid NZ8 grade 2](presets/es-madrid-nz8-grade2.json) | Coverage 30%; FAR 0.5; 3 floors; cornice 10.5 m; road/side 7/5 m; rear max(2H/3, 4 m) | [PGOUM arts. 8.8.6–8.8.10](https://transparencia.madrid.es/UnidadesDescentralizadas/UDCUrbanismo/PGOUM/CompendioNNUU/ficheros/COMPENDIO_MPG_NNUU_24_09_2025.pdf) | Reference |
+| [Custom](presets/custom.json) | Manual plot controls | User-entered | Plot-specific |
 
 ## Install in Forma
 
-Serve the app at a URL accessible to the Forma browser; local development uses `http://localhost:5173/`.
-For a shared installation, use the deployed HTTPS URL in every URL field below.
+1. Serve the app at `http://localhost:5173/` for local use, or replace that URL below with your deployed HTTPS URL.
+2. Open **Extensions → Manage extensions → Create extension** and enter:
 
-Open **Extensions → Manage extensions → Create extension** and enter:
+   | Field | Value |
+   | --- | --- |
+   | Name | Zoning Check |
+   | Provider | Dinar Sharafutdinov · dstools |
+   | Description | Check proposal massing against parcel controls and generate an envelope. |
+   | Text to show for the installed extension | Check plot controls and export results. |
+   | Description link | `https://github.com/sharafutdinovdi/forma-zoning-check` |
+   | Icon | [256 px](assets/icon-256.png) or [512 px](assets/icon-512.png) |
+   | Legal information | MIT licence; estimated massing check, not a compliance statement. |
 
-| Field | Value |
-| --- | --- |
-| Name | Zoning Check |
-| Provider | Dinar Sharafutdinov · dstools |
-| Description | Check proposal FAR, coverage, height and setbacks against parcel controls; share presets and export a CSV report. |
-| Text to show for the installed extension | Check proposal massing against plot controls and export results to CSV. |
-| Description link | `https://github.com/sharafutdinovdi/forma-zoning-check` |
-| Icon | [assets/icon-256.png](assets/icon-256.png), or [512 px](assets/icon-512.png) where required. |
-| Legal information | MIT licence; estimated massing check, not a compliance statement. |
+3. Add the project ID (`pro_…`) to the **project allowlist**.
+4. Add an **Embedded view**: URL `http://localhost:5173/`, placement `RIGHT_MENU_ANALYSIS_PANEL`.
+5. Paste into **Buttons**:
 
-Add the target project ID (`pro_…`) to the extension's **project allowlist**.
-Add an **Embedded view** with URL `http://localhost:5173/` and placement `RIGHT_MENU_ANALYSIS_PANEL`.
-In **Buttons**, paste this YAML:
+   ```yaml
+   - label: Zoning Check
+     actions:
+       click:
+         type: OPEN_FLOATING_PANEL
+         url: http://localhost:5173/
+         preferredSize:
+           width: 440
+           height: 720
+   ```
 
-```yaml
-- label: Zoning Check
-  actions:
-    click:
-      type: OPEN_FLOATING_PANEL
-      url: http://localhost:5173/
-      preferredSize:
-        width: 440
-        height: 720
-```
-
-The YAML retains the [Autodesk floating-panel configuration example](https://forums.autodesk.com/t5/forma-site-design-developer/how-can-i-make-an-extension-modal-cover-the-entire-window/m-p/12281463/highlight/true).
-Autodesk's [extension setup guide](https://aps.autodesk.com/en/docs/forma/v1/overview/getting-started/) covers registration.
-Install the extension in the allowlisted project through **Extensions → Add extension → Unpublished** using its extension ID; installation is per project, as described in [Autodesk's installation guide](https://www.autodesk.com/learn/ondemand/tutorial/add-extensions-in-forma).
-
-The analysis view uses the mini layout below 300 px; the toolbar button opens a preferred 440 × 720 px floating panel.
-The mini view's open button also requests the floating panel; an unavailable SDK action displays the toolbar fallback.
+6. In the project, open **Extensions → Add extension → Unpublished** and install using the extension ID.
 
 ## Develop
 
@@ -96,50 +84,30 @@ npm ci
 npm run dev
 ```
 
-Vite uses port 5173 with `strictPort`; reuse an existing server on this port.
-
 | Fixture URL | Preview |
 | --- | --- |
-| `http://localhost:5173/?fixture=1` | Synthetic ready report; 440 px full panel or 240 px mini view. |
-| `http://localhost:5173/?fixture=1&state=no-site-limit` | Actionable missing-site-limit state. |
-| `http://localhost:5173/?fixture=1&state=no-buildings-on-plot&existing=1` | Excluded existing building and Include existing action. |
+| `http://localhost:5173/?fixture=1` | Results, Controls and Envelope; full panel or mini view below 300 px. |
+| `http://localhost:5173/?fixture=1&state=no-site-limit` | Missing site limit. |
+| `http://localhost:5173/?fixture=1&state=no-buildings-on-plot&existing=1` | Excluded existing building and the action to include it. |
 | `http://localhost:5173/?fixture=1&state=loading` | Loading state. |
-| `http://localhost:5173/?fixture=1&state=error` | Recoverable error state. |
-| `http://localhost:5173/?fixture=1&host=forma` | Transparent body and root over a dark checkerboard. |
+| `http://localhost:5173/?fixture=1&state=error` | Recoverable error. |
+| `http://localhost:5173/?fixture=1&host=forma` | Host transparency over a checkerboard. |
 
-Fixture mode is ignored in an iframe; `host=forma` changes the standalone fixture's appearance without starting an SDK connection.
-An embedded view sets `data-host="forma"`; standalone mode sets `data-host="standalone"`.
-The root has 12 px inner padding and no outer border or radius.
+Fixtures use synthetic data; saving to the Forma library requires the live host.
 
-```sh
-npm run typecheck && npm run build
-curl -s -o /dev/null -w '%{http_code}\n' 'http://localhost:5173/?fixture=1'
-```
+## Scope
 
-Production output is written to `dist/`.
-The lockfile pins runtime dependencies; v2.3 adds none.
-In Forma, **… → Debug** downloads element diagnostics for the current snapshot.
+This is an estimated massing check, not legal compliance or approval; current plot documents take precedence over presets.
+It does not check parking, podium controls or per-floor coverage, or look up rules automatically by coordinates.
+Missing limits or geometry remain incomplete; floor counts and GFA may be estimated.
+The envelope does not shrink its footprint to meet coverage; coverage warnings require a revised building shape.
 
-## What it does not do
+## Verified
 
-- Establish regulatory compliance, authority approval, permit eligibility or current legal applicability of a preset.
-- Check parking capacity, podium controls, per-floor coverage, annex/basement classification or the regulatory road-level height datum.
-- Treat missing geometry or limits as a pass: floor counts and GFA may be estimated, and crossing buildings contribute whole-building GFA while coverage is clipped to the plot.
-
-Current plot documents take precedence over presets.
-Illustrative 3D extrusions omit polygons containing holes; numeric calculations retain those holes.
-
-## Status
-
-Owner-provided live evidence on **2026-09-21** confirms the floating and right-side panels, visible 3D tint, and exclusion of 49 existing buildings through base-group ancestry.
-The floating screenshot displays two proposal buildings; the earlier mini screenshot records a native-building geometry failure.
-These observations do not validate the displayed measurements or every geometry provider.
-
-The v2.3 interface, JSON validation and round trips, stored controls, responsive layouts and host transparency are verified locally with synthetic fixtures.
-The new interface and transparent background still require a live Forma check in both panels; the supplied live images show the previous version.
-Current authority documents, overlay alignment/cleanup and each native geometry fallback have not been independently verified live in this task.
-[NOTES.md](NOTES.md) records commands, build sizes, evidence boundaries and remaining checks.
+Owner-provided live captures from **2026-09-22** show v4 in Forma's EU region with SDK **0.96.0**.
+They cover the floating and mini panels, controls, verdicts, 3D tint, generated envelope and [CSV download](docs/screens/live-issues.png).
+Envelope saving to the library, bouwvlak mode and European presets on a European plot remain unverified.
 
 ## Licence
 
-[MIT License](LICENSE), Copyright (c) 2026 Dinar Sharafutdinov.
+[MIT](LICENSE), Copyright (c) 2026 Dinar Sharafutdinov.
