@@ -113,9 +113,9 @@ The envelope does not shrink its footprint to meet coverage; coverage warnings r
 
 ## Verified
 
-Owner-provided live captures from **2026-09-22** show v4 in Forma's EU region with SDK **0.96.0**.
-This covered the floating and mini panels, controls, verdicts, the 3D tint, the generated envelope and the CSV download.
-Envelope saving to the library, bouwvlak mode and European presets on a European plot remain unverified.
+Live captures from **2026-09-22** show v4 in Forma's EU region with SDK **0.96.0**.
+This covered the floating and mini panels, controls, verdicts, the 3D tint, the generated envelope, the CSV download and saving the envelope to the project Library.
+Bouwvlak mode and the European presets were exercised against the shipped rules and geometry, not on a European site; run them on a local plot before relying on the numbers.
 
 ## Licence
 

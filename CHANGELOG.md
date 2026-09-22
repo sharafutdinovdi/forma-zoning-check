@@ -6,6 +6,10 @@ Version names and dates below come from the corresponding feature commits in `gi
 
 ## [Unreleased]
 
+### Fixed
+
+- `tsc` resolves the CSS side-effect import through declared Vite client types, which TypeScript 7 rejects without them.
+
 ## [v4] - 2026-09-22
 
 ### Added
