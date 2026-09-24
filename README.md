@@ -54,8 +54,8 @@ An Autodesk Forma extension that checks a proposal against the parcel controls o
 
 ## Install in Forma
 
-1. Serve the app at `http://localhost:5173/` for local use, or replace that URL below with your deployed HTTPS URL.
-2. Open **Extensions → Manage extensions → Create extension** and enter:
+1. The extension is published at `https://sharafutdinovdi.github.io/forma-zoning-check/`. Every push to `main` rebuilds it through the GitHub Pages workflow, so an installed extension picks up changes on the next page reload. Self-hosting works the same way: serve `dist/` over HTTPS and use that URL below.
+2. In a project, open **Extensions → Add extension**, then the gear icon → **Manage extensions → Create New Extension**, and enter:
 
    | Field | Value |
    | --- | --- |
@@ -68,7 +68,7 @@ An Autodesk Forma extension that checks a proposal against the parcel controls o
    | Legal information | MIT licence; estimated massing check, not a compliance statement. |
 
 3. Add the project ID (`pro_…`) to the **project allowlist**.
-4. Add an **Embedded view**: URL `http://localhost:5173/`, placement `RIGHT_MENU_ANALYSIS_PANEL`.
+4. Add an **Embedded view**: URL `https://sharafutdinovdi.github.io/forma-zoning-check/`, placement `RIGHT_MENU_ANALYSIS_PANEL`.
 5. Paste into **Buttons**:
 
    ```yaml
@@ -76,7 +76,7 @@ An Autodesk Forma extension that checks a proposal against the parcel controls o
      actions:
        click:
          type: OPEN_FLOATING_PANEL
-         url: http://localhost:5173/
+         url: https://sharafutdinovdi.github.io/forma-zoning-check/
          preferredSize:
            width: 440
            height: 720
@@ -92,6 +92,8 @@ Use Node.js 20.19+ or 22.12+ and npm.
 npm ci
 npm run dev
 ```
+
+To try local changes inside Forma, register a second, development-only extension with the same settings but `http://localhost:5173/` in both URLs. Browsers allow plain HTTP inside the HTTPS Forma page only for localhost, and the page loads only while `npm run dev` is running.
 
 | Fixture URL | Preview |
 | --- | --- |
