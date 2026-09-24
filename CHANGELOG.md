@@ -9,6 +9,7 @@ Version names and dates below come from the corresponding feature commits in `gi
 ### Fixed
 
 - `tsc` resolves the CSS side-effect import through declared Vite client types, which TypeScript 7 rejects without them.
+- The permitted envelope no longer collapses to zero on concave site limits: setbacks are now an exact inward offset of each edge segment instead of an intersection of infinite half-planes ([#5](https://github.com/sharafutdinovdi/forma-zoning-check/issues/5)).
 
 ## [v4] - 2026-09-22
 
