@@ -26,6 +26,9 @@ export function union(rings: Ring[]): MultiPolygon {
 export function intersection(a: MultiPolygon, b: MultiPolygon): MultiPolygon {
   return a.length && b.length ? clipping.intersection(a, b) : [];
 }
+export function difference(a: MultiPolygon, b: MultiPolygon): MultiPolygon {
+  return !a.length ? [] : !b.length ? a : clipping.difference(a, b);
+}
 export function intersectionArea(a: Ring, b: Ring): number {
   return multiArea(intersection([[a]], [[b]]));
 }

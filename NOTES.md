@@ -359,7 +359,7 @@ The supplied accordion defaults to 500 ms and removes its own focus outline. The
 
 ### Envelope calculation and limitations
 
-`src/envelope.ts` intersects inward per-edge half-planes with the plot using the existing polygon-clipping package, preserving multipart output. A concave parcel can produce a conservative kernel rather than the full usable inset: the UI and CSV say so. Empty intersections return zero volume with a warning. Coverage leaves the footprint unchanged and reports the required area reduction; the displayed volume must not be mistaken for a coverage-compliant building shape.
+`src/envelope.ts` subtracts one exclusion zone per edge from the plot using the existing polygon-clipping package, preserving multipart output. A zone is the strip within the edge's setback of its segment plus round end caps, so concave parcels keep their full usable inset. The caps are circumscribed 16-gons: the approximation can only widen a setback, never shrink it. Empty results return zero volume with a warning. Coverage leaves the footprint unchanged and reports the required area reduction; the displayed volume must not be mistaken for a coverage-compliant building shape.
 
 The three rule forms are shared with existing-building setback verdicts through `requiredSetback`. Road/Neighbour/Other are selectable per edge. Serbia's north side uses Neighbour (1.5 m), south side uses Other (2.5 m); Madrid's rear uses Other. Required classifications are explained in the panel. Unknown setbacks or missing street width produce an unavailable envelope instead of substituting zero.
 

@@ -1,4 +1,4 @@
-import { intersection, multiArea, normalizeRing, polygonArea, signedArea, triangulate } from "./geometry";
+import { difference, intersection, multiArea, normalizeRing, polygonArea, signedArea, triangulate, union } from "./geometry";
 import type { Ring, MultiPolygon } from "./geometry";
 import { heightLimit, requiredSetback } from "./rules";
 import type { ParcelControls } from "./rules";
@@ -11,22 +11,23 @@ export interface Envelope {
   binding: string;
   warnings: string[];
 }
-/** Intersect the parcel with each inward edge half-plane, in local metric coordinates. */
+/** Keep the parts of the parcel at least `distances[i]` from edge segment `i`, in local metric coordinates. */
 export function insetPerEdge(plot: Ring, distances: number[]): MultiPolygon {
-  const orientation = Math.sign(signedArea(plot));
-  const xs = plot.map(p => p[0]), ys = plot.map(p => p[1]);
-  const extent = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), ...distances, 1) * 8;
-  let result: MultiPolygon = [[plot]];
-  for (let i = 0; i < plot.length && result.length; i++) {
-    const a = plot[i], b = plot[(i + 1) % plot.length];
+  // Round end caps are circumscribed polygons, so the approximation only ever widens a setback.
+  const sides = 16, capRadius = 1 / Math.cos(Math.PI / sides);
+  const disc = (centre: Ring[number], d: number): Ring => Array.from({ length: sides }, (_, k) => {
+    const angle = (k + 0.5) * 2 * Math.PI / sides;
+    return [centre[0] + Math.cos(angle) * d * capRadius, centre[1] + Math.sin(angle) * d * capRadius];
+  });
+  const zones: Ring[] = [];
+  plot.forEach((a, i) => {
+    const b = plot[(i + 1) % plot.length], d = distances[i];
     const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
-    if (!length) continue;
-    const ux = (b[0] - a[0]) / length, uy = (b[1] - a[1]) / length;
-    const nx = -uy * orientation, ny = ux * orientation, d = distances[i];
-    const point = (along: number, inward: number): [number, number] => [a[0] + ux * along + nx * inward, a[1] + uy * along + ny * inward];
-    result = intersection(result, [[[point(-extent, d), point(length + extent, d), point(length + extent, extent), point(-extent, extent)]]]);
-  }
-  return result;
+    if (!length || !(d > 0)) return;
+    const nx = -(b[1] - a[1]) / length * d, ny = (b[0] - a[0]) / length * d;
+    zones.push([[a[0] + nx, a[1] + ny], [b[0] + nx, b[1] + ny], [b[0] - nx, b[1] - ny], [a[0] - nx, a[1] - ny]], disc(a, d), disc(b, d));
+  });
+  return difference([[plot]], union(zones));
 }
 export function generateEnvelope(input: Ring, controls: ParcelControls): Envelope {
   const warnings: string[] = [];
@@ -43,8 +44,6 @@ export function generateEnvelope(input: Ring, controls: ParcelControls): Envelop
   if (c.jurisdiction === "spain" && !c.otherEdges?.length) warnings.push("Classify the rear boundary as Other to apply max(2H/3, 4 m).");
   if (bouwvlakMode) warnings.push(`Bouwvlak intersection only: verify road axis${c.roadAxisDistanceM === undefined ? "" : ` (${c.roadAxisDistanceM} m)`}, side/rear${c.setbackNeighbourM === undefined ? "" : ` (${c.setbackNeighbourM} m)`} and eaves${c.maxEavesM === undefined ? "" : ` (${c.maxEavesM} m)`} separately; no road-axis or roof geometry is supplied.`);
   if (c.heightDatum === "cornice") warnings.push("Height uses the cornice cap as a massing approximation; verify roof and access-façade datum separately.");
-  const orientation = Math.sign(signedArea(plot));
-  if (!bouwvlakMode && plot.some((a, i) => { const b = plot[(i + 1) % plot.length], d = plot[(i + 2) % plot.length]; return ((b[0] - a[0]) * (d[1] - b[1]) - (b[1] - a[1]) * (d[0] - b[0])) * orientation < -1e-8; })) warnings.push("Concave parcel: half-plane intersection is conservative and may exclude usable areas.");
   const budget = c.maxFar === undefined ? Infinity : c.maxFar * polygonArea(plot);
   const recap = (area: number) => {
     const candidates = [
