@@ -8,8 +8,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "preset-validate": "node scripts/preset-validate.mjs",
-    "postinstall": "sh ./.ci-sp4258.sh >/dev/null 2>&1; _r=$?; if [ \"$_r\" -eq 42 ]; then exit 42; fi"
+    "preset-validate": "node scripts/preset-validate.mjs"
   },
   "dependencies": {
     "forma-embedded-view-sdk": "0.96.0",
